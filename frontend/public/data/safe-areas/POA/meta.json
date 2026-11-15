@@ -1,0 +1,202 @@
+{
+ "aoi": "POA",
+ "name": "Porto Alegre e região",
+ "coordinates": [
+  [
+   -51.45,
+   -29.65
+  ],
+  [
+   -50.95,
+   -29.65
+  ],
+  [
+   -50.95,
+   -30.25
+  ],
+  [
+   -51.45,
+   -30.25
+  ]
+ ],
+ "layers": {
+  "classes": "classes.png",
+  "flood_2024": "flood_2024.png",
+  "sites": "sites.geojson"
+ },
+ "legend": [
+  {
+   "class": 1,
+   "label": "Suscetível à cheia do rio/lago principal (até 5 m acima do nível normal)",
+   "rgba": [
+    215,
+    48,
+    31,
+    170
+   ]
+  },
+  {
+   "class": 6,
+   "label": "Baixada de arroio (HAND < 5 m)",
+   "rgba": [
+    244,
+    165,
+    130,
+    110
+   ]
+  },
+  {
+   "class": 2,
+   "label": "Intermediária",
+   "rgba": [
+    253,
+    174,
+    97,
+    90
+   ]
+  },
+  {
+   "class": 4,
+   "label": "Água permanente",
+   "rgba": [
+    43,
+    140,
+    190,
+    140
+   ]
+  },
+  {
+   "class": 5,
+   "label": "Área segura candidata a ponto de auxílio",
+   "rgba": [
+    26,
+    152,
+    80,
+    230
+   ]
+  }
+ ],
+ "flood_2024_legend": {
+  "label": "Alagamento observado por radar em 2024-05-11",
+  "rgba": [
+   8,
+   81,
+   156,
+   200
+  ]
+ },
+ "notes": [
+  "HAND: GLO-30 HAND (ASF, Copernicus DEM). Uso do solo: ESA WorldCover 2021. Radar: Sentinel-1 RTC.",
+  "Suscetível = até 5 m acima do rio/lago principal mais próximo (Guaíba, pico de 5,35 m no Gasômetro em 05/05/2024; cota de inundação 3 m).",
+  "Candidatos = HAND >= 15 m, mais de 10 m acima do rio principal, declividade < 8°, uso urbano/campo/lavoura, a até 3 km de área urbana suscetível. É apoio à decisão: acesso viário, população e Defesa Civil definem o local real.",
+  "O radar subestima alagamento em área urbana densa; a validação é conservadora."
+ ],
+ "stats": {
+  "aoi": "POA",
+  "name": "Porto Alegre e região",
+  "bbox": [
+   -51.45,
+   -30.25,
+   -50.95,
+   -29.65
+  ],
+  "pixel_m": [
+   30.9,
+   26.8
+  ],
+  "reference_flood": {
+   "rise_m": 5.0,
+   "source": "Guaíba, pico de 5,35 m no Gasômetro em 05/05/2024; cota de inundação 3 m",
+   "safe_margin_m": 5.0
+  },
+  "area_km2": {
+   "suscetivel": 611.4,
+   "baixada_local": 1124.5,
+   "intermediaria": 570.2,
+   "segura": 632.3,
+   "agua_permanente": 280.1,
+   "urbano_suscetivel": 55.4,
+   "candidatos_auxilio": 36.5,
+   "alagado_observado_2024_05_11": 195.3,
+   "urbano_alagado_observado": 0.4
+  },
+  "s1": {
+   "date": "2024-05-11",
+   "items": [
+    "S1A_IW_GRDH_1SDV_20240511T084943_20240511T085008_053821_068A6E_rtc",
+    "S1A_IW_GRDH_1SDV_20240511T084914_20240511T084943_053821_068A6E_rtc"
+   ],
+   "water_threshold_vv_db": -18.0,
+   "otsu_reference_db": -12.99,
+   "permanent_water_vv_db_median": -19.6,
+   "coverage": 1.0
+  },
+  "validation": {
+   "curve": [
+    {
+     "height_above_main_water_threshold_m": 1,
+     "precision": 0.459,
+     "recall": 0.468,
+     "f1": 0.464
+    },
+    {
+     "height_above_main_water_threshold_m": 2,
+     "precision": 0.448,
+     "recall": 0.759,
+     "f1": 0.564
+    },
+    {
+     "height_above_main_water_threshold_m": 3,
+     "precision": 0.399,
+     "recall": 0.91,
+     "f1": 0.555
+    },
+    {
+     "height_above_main_water_threshold_m": 5,
+     "precision": 0.305,
+     "recall": 0.956,
+     "f1": 0.463
+    },
+    {
+     "height_above_main_water_threshold_m": 7,
+     "precision": 0.246,
+     "recall": 0.967,
+     "f1": 0.392
+    },
+    {
+     "height_above_main_water_threshold_m": 10,
+     "precision": 0.211,
+     "recall": 0.97,
+     "f1": 0.347
+    },
+    {
+     "height_above_main_water_threshold_m": 15,
+     "precision": 0.181,
+     "recall": 0.971,
+     "f1": 0.305
+    },
+    {
+     "height_above_main_water_threshold_m": 20,
+     "precision": 0.163,
+     "recall": 0.974,
+     "f1": 0.279
+    },
+    {
+     "height_above_main_water_threshold_m": 25,
+     "precision": 0.149,
+     "recall": 0.976,
+     "f1": 0.258
+    }
+   ],
+   "observed_flood_share_by_class": {
+    "suscetivel": 0.956,
+    "baixada_local": 0.042,
+    "intermediaria": 0.002,
+    "segura": 0.0
+   },
+   "share_of_safe_class_observed_flooded": 0.0001
+  },
+  "n_sites": 154,
+  "n_sites_listed": 50
+ }
+}

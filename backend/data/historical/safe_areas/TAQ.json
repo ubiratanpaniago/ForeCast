@@ -1,0 +1,610 @@
+{
+ "aoi": "TAQ",
+ "name": "Vale do Taquari",
+ "bbox": [
+  -52.15,
+  -29.55,
+  -51.75,
+  -29.05
+ ],
+ "pixel_m": [
+  30.9,
+  27.0
+ ],
+ "reference_flood": {
+  "rise_m": 20.0,
+  "source": "Taquari em Lajeado, pico de ~33,4 m em maio/2024 vs. 13 m normal",
+  "safe_margin_m": 5.0
+ },
+ "area_km2": {
+  "suscetivel": 190.9,
+  "baixada_local": 288.9,
+  "intermediaria": 323.9,
+  "segura": 1332.5,
+  "agua_permanente": 25.2,
+  "urbano_suscetivel": 12.0,
+  "candidatos_auxilio": 68.1,
+  "alagado_observado_2024_05_11": 1.8,
+  "urbano_alagado_observado": 0.0
+ },
+ "s1": {
+  "date": "2024-05-11",
+  "items": [
+   "S1A_IW_GRDH_1SDV_20240511T084943_20240511T085008_053821_068A6E_rtc",
+   "S1A_IW_GRDH_1SDV_20240511T084914_20240511T084943_053821_068A6E_rtc"
+  ],
+  "water_threshold_vv_db": -18.0,
+  "otsu_reference_db": -7.57,
+  "permanent_water_vv_db_median": -16.1,
+  "coverage": 1.0
+ },
+ "validation": {
+  "curve": [
+   {
+    "height_above_main_water_threshold_m": 1,
+    "precision": 0.025,
+    "recall": 0.368,
+    "f1": 0.047
+   },
+   {
+    "height_above_main_water_threshold_m": 2,
+    "precision": 0.023,
+    "recall": 0.384,
+    "f1": 0.043
+   },
+   {
+    "height_above_main_water_threshold_m": 3,
+    "precision": 0.02,
+    "recall": 0.398,
+    "f1": 0.039
+   },
+   {
+    "height_above_main_water_threshold_m": 5,
+    "precision": 0.017,
+    "recall": 0.426,
+    "f1": 0.032
+   },
+   {
+    "height_above_main_water_threshold_m": 7,
+    "precision": 0.014,
+    "recall": 0.451,
+    "f1": 0.027
+   },
+   {
+    "height_above_main_water_threshold_m": 10,
+    "precision": 0.011,
+    "recall": 0.493,
+    "f1": 0.021
+   },
+   {
+    "height_above_main_water_threshold_m": 15,
+    "precision": 0.008,
+    "recall": 0.578,
+    "f1": 0.015
+   },
+   {
+    "height_above_main_water_threshold_m": 20,
+    "precision": 0.006,
+    "recall": 0.63,
+    "f1": 0.012
+   },
+   {
+    "height_above_main_water_threshold_m": 25,
+    "precision": 0.005,
+    "recall": 0.655,
+    "f1": 0.01
+   }
+  ],
+  "observed_flood_share_by_class": {
+   "suscetivel": 0.63,
+   "baixada_local": 0.181,
+   "intermediaria": 0.082,
+   "segura": 0.107
+  },
+  "share_of_safe_class_observed_flooded": 0.0001
+ },
+ "n_sites": 278,
+ "n_sites_listed": 50,
+ "sites": [
+  {
+   "lat": -29.53428,
+   "lon": -51.8365,
+   "area_ha": 136.1,
+   "hand_mean_m": 24.3,
+   "height_above_main_water_m": 63.5,
+   "slope_mean_deg": 4.2,
+   "dist_to_flood_prone_urban_m": 587,
+   "landcover": "lavoura"
+  },
+  {
+   "lat": -29.4933,
+   "lon": -51.85018,
+   "area_ha": 134.4,
+   "hand_mean_m": 26.6,
+   "height_above_main_water_m": 59.8,
+   "slope_mean_deg": 5.4,
+   "dist_to_flood_prone_urban_m": 272,
+   "landcover": "lavoura"
+  },
+  {
+   "lat": -29.47604,
+   "lon": -51.88774,
+   "area_ha": 114.3,
+   "hand_mean_m": 24.6,
+   "height_above_main_water_m": 37.1,
+   "slope_mean_deg": 4.6,
+   "dist_to_flood_prone_urban_m": 62,
+   "landcover": "lavoura"
+  },
+  {
+   "lat": -29.50783,
+   "lon": -52.01496,
+   "area_ha": 93.0,
+   "hand_mean_m": 24.2,
+   "height_above_main_water_m": 71.5,
+   "slope_mean_deg": 5.1,
+   "dist_to_flood_prone_urban_m": 553,
+   "landcover": "lavoura"
+  },
+  {
+   "lat": -29.47827,
+   "lon": -51.98987,
+   "area_ha": 91.2,
+   "hand_mean_m": 26.9,
+   "height_above_main_water_m": 56.7,
+   "slope_mean_deg": 5.0,
+   "dist_to_flood_prone_urban_m": 54,
+   "landcover": "urbano"
+  },
+  {
+   "lat": -29.51369,
+   "lon": -51.81098,
+   "area_ha": 88.4,
+   "hand_mean_m": 24.5,
+   "height_above_main_water_m": 65.2,
+   "slope_mean_deg": 4.7,
+   "dist_to_flood_prone_urban_m": 996,
+   "landcover": "urbano"
+  },
+  {
+   "lat": -29.49141,
+   "lon": -52.01011,
+   "area_ha": 78.0,
+   "hand_mean_m": 22.2,
+   "height_above_main_water_m": 68.9,
+   "slope_mean_deg": 4.6,
+   "dist_to_flood_prone_urban_m": 785,
+   "landcover": "lavoura"
+  },
+  {
+   "lat": -29.52706,
+   "lon": -51.86162,
+   "area_ha": 72.5,
+   "hand_mean_m": 23.7,
+   "height_above_main_water_m": 40.9,
+   "slope_mean_deg": 4.4,
+   "dist_to_flood_prone_urban_m": 62,
+   "landcover": "lavoura"
+  },
+  {
+   "lat": -29.45105,
+   "lon": -52.00863,
+   "area_ha": 71.1,
+   "hand_mean_m": 22.8,
+   "height_above_main_water_m": 68.4,
+   "slope_mean_deg": 4.4,
+   "dist_to_flood_prone_urban_m": 148,
+   "landcover": "urbano"
+  },
+  {
+   "lat": -29.49884,
+   "lon": -51.89475,
+   "area_ha": 66.7,
+   "hand_mean_m": 24.0,
+   "height_above_main_water_m": 47.5,
+   "slope_mean_deg": 4.4,
+   "dist_to_flood_prone_urban_m": 270,
+   "landcover": "lavoura"
+  },
+  {
+   "lat": -29.51127,
+   "lon": -51.90056,
+   "area_ha": 63.8,
+   "hand_mean_m": 25.6,
+   "height_above_main_water_m": 60.1,
+   "slope_mean_deg": 4.8,
+   "dist_to_flood_prone_urban_m": 272,
+   "landcover": "lavoura"
+  },
+  {
+   "lat": -29.52973,
+   "lon": -51.91791,
+   "area_ha": 58.0,
+   "hand_mean_m": 25.7,
+   "height_above_main_water_m": 56.8,
+   "slope_mean_deg": 4.6,
+   "dist_to_flood_prone_urban_m": 108,
+   "landcover": "lavoura"
+  },
+  {
+   "lat": -29.49525,
+   "lon": -51.87452,
+   "area_ha": 56.8,
+   "hand_mean_m": 24.7,
+   "height_above_main_water_m": 58.4,
+   "slope_mean_deg": 4.8,
+   "dist_to_flood_prone_urban_m": 187,
+   "landcover": "lavoura"
+  },
+  {
+   "lat": -29.47548,
+   "lon": -52.01643,
+   "area_ha": 52.0,
+   "hand_mean_m": 22.3,
+   "height_above_main_water_m": 66.2,
+   "slope_mean_deg": 4.2,
+   "dist_to_flood_prone_urban_m": 725,
+   "landcover": "lavoura"
+  },
+  {
+   "lat": -29.54459,
+   "lon": -52.03124,
+   "area_ha": 50.6,
+   "hand_mean_m": 23.5,
+   "height_above_main_water_m": 67.1,
+   "slope_mean_deg": 4.6,
+   "dist_to_flood_prone_urban_m": 1339,
+   "landcover": "lavoura"
+  },
+  {
+   "lat": -29.44828,
+   "lon": -51.98819,
+   "area_ha": 50.4,
+   "hand_mean_m": 23.2,
+   "height_above_main_water_m": 75.4,
+   "slope_mean_deg": 5.0,
+   "dist_to_flood_prone_urban_m": 911,
+   "landcover": "urbano"
+  },
+  {
+   "lat": -29.53719,
+   "lon": -52.0383,
+   "area_ha": 45.4,
+   "hand_mean_m": 26.2,
+   "height_above_main_water_m": 58.0,
+   "slope_mean_deg": 4.6,
+   "dist_to_flood_prone_urban_m": 375,
+   "landcover": "lavoura"
+  },
+  {
+   "lat": -29.49627,
+   "lon": -51.93291,
+   "area_ha": 44.9,
+   "hand_mean_m": 22.3,
+   "height_above_main_water_m": 51.5,
+   "slope_mean_deg": 4.6,
+   "dist_to_flood_prone_urban_m": 62,
+   "landcover": "lavoura"
+  },
+  {
+   "lat": -29.44241,
+   "lon": -51.96108,
+   "area_ha": 44.7,
+   "hand_mean_m": 22.8,
+   "height_above_main_water_m": 62.6,
+   "slope_mean_deg": 4.3,
+   "dist_to_flood_prone_urban_m": 311,
+   "landcover": "urbano"
+  },
+  {
+   "lat": -29.54224,
+   "lon": -51.86443,
+   "area_ha": 42.9,
+   "hand_mean_m": 22.3,
+   "height_above_main_water_m": 76.0,
+   "slope_mean_deg": 3.9,
+   "dist_to_flood_prone_urban_m": 1445,
+   "landcover": "lavoura"
+  },
+  {
+   "lat": -29.38658,
+   "lon": -51.95822,
+   "area_ha": 40.9,
+   "hand_mean_m": 33.5,
+   "height_above_main_water_m": 57.1,
+   "slope_mean_deg": 4.9,
+   "dist_to_flood_prone_urban_m": 107,
+   "landcover": "urbano"
+  },
+  {
+   "lat": -29.46915,
+   "lon": -52.02952,
+   "area_ha": 39.6,
+   "hand_mean_m": 22.8,
+   "height_above_main_water_m": 85.2,
+   "slope_mean_deg": 4.2,
+   "dist_to_flood_prone_urban_m": 2184,
+   "landcover": "lavoura"
+  },
+  {
+   "lat": -29.45268,
+   "lon": -51.94989,
+   "area_ha": 38.9,
+   "hand_mean_m": 23.2,
+   "height_above_main_water_m": 52.3,
+   "slope_mean_deg": 4.7,
+   "dist_to_flood_prone_urban_m": 62,
+   "landcover": "urbano"
+  },
+  {
+   "lat": -29.39467,
+   "lon": -51.96897,
+   "area_ha": 38.5,
+   "hand_mean_m": 23.1,
+   "height_above_main_water_m": 52.9,
+   "slope_mean_deg": 4.2,
+   "dist_to_flood_prone_urban_m": 265,
+   "landcover": "lavoura"
+  },
+  {
+   "lat": -29.54031,
+   "lon": -52.04874,
+   "area_ha": 36.9,
+   "hand_mean_m": 22.0,
+   "height_above_main_water_m": 81.8,
+   "slope_mean_deg": 4.2,
+   "dist_to_flood_prone_urban_m": 1600,
+   "landcover": "lavoura"
+  },
+  {
+   "lat": -29.38412,
+   "lon": -51.94118,
+   "area_ha": 36.0,
+   "hand_mean_m": 24.5,
+   "height_above_main_water_m": 39.0,
+   "slope_mean_deg": 4.1,
+   "dist_to_flood_prone_urban_m": 82,
+   "landcover": "lavoura"
+  },
+  {
+   "lat": -29.52598,
+   "lon": -51.88426,
+   "area_ha": 36.0,
+   "hand_mean_m": 24.2,
+   "height_above_main_water_m": 61.8,
+   "slope_mean_deg": 4.7,
+   "dist_to_flood_prone_urban_m": 62,
+   "landcover": "lavoura"
+  },
+  {
+   "lat": -29.49206,
+   "lon": -51.88708,
+   "area_ha": 35.4,
+   "hand_mean_m": 25.4,
+   "height_above_main_water_m": 35.8,
+   "slope_mean_deg": 4.6,
+   "dist_to_flood_prone_urban_m": 112,
+   "landcover": "lavoura"
+  },
+  {
+   "lat": -29.49341,
+   "lon": -51.83049,
+   "area_ha": 35.1,
+   "hand_mean_m": 27.2,
+   "height_above_main_water_m": 58.6,
+   "slope_mean_deg": 5.5,
+   "dist_to_flood_prone_urban_m": 1223,
+   "landcover": "lavoura"
+  },
+  {
+   "lat": -29.53112,
+   "lon": -51.89293,
+   "area_ha": 34.4,
+   "hand_mean_m": 28.7,
+   "height_above_main_water_m": 55.2,
+   "slope_mean_deg": 4.8,
+   "dist_to_flood_prone_urban_m": 155,
+   "landcover": "lavoura"
+  },
+  {
+   "lat": -29.52972,
+   "lon": -51.90346,
+   "area_ha": 34.0,
+   "hand_mean_m": 23.8,
+   "height_above_main_water_m": 45.6,
+   "slope_mean_deg": 4.9,
+   "dist_to_flood_prone_urban_m": 488,
+   "landcover": "lavoura"
+  },
+  {
+   "lat": -29.43022,
+   "lon": -51.98834,
+   "area_ha": 32.9,
+   "hand_mean_m": 24.5,
+   "height_above_main_water_m": 75.8,
+   "slope_mean_deg": 4.9,
+   "dist_to_flood_prone_urban_m": 677,
+   "landcover": "urbano"
+  },
+  {
+   "lat": -29.44228,
+   "lon": -51.97214,
+   "area_ha": 31.8,
+   "hand_mean_m": 21.3,
+   "height_above_main_water_m": 52.8,
+   "slope_mean_deg": 4.7,
+   "dist_to_flood_prone_urban_m": 108,
+   "landcover": "urbano"
+  },
+  {
+   "lat": -29.54537,
+   "lon": -51.84987,
+   "area_ha": 31.7,
+   "hand_mean_m": 22.5,
+   "height_above_main_water_m": 80.0,
+   "slope_mean_deg": 3.6,
+   "dist_to_flood_prone_urban_m": 1993,
+   "landcover": "lavoura"
+  },
+  {
+   "lat": -29.53529,
+   "lon": -52.06028,
+   "area_ha": 31.4,
+   "hand_mean_m": 22.2,
+   "height_above_main_water_m": 69.5,
+   "slope_mean_deg": 4.5,
+   "dist_to_flood_prone_urban_m": 2348,
+   "landcover": "lavoura"
+  },
+  {
+   "lat": -29.53617,
+   "lon": -51.81445,
+   "area_ha": 30.4,
+   "hand_mean_m": 22.5,
+   "height_above_main_water_m": 54.8,
+   "slope_mean_deg": 4.2,
+   "dist_to_flood_prone_urban_m": 936,
+   "landcover": "lavoura"
+  },
+  {
+   "lat": -29.49317,
+   "lon": -52.02555,
+   "area_ha": 29.9,
+   "hand_mean_m": 23.2,
+   "height_above_main_water_m": 83.4,
+   "slope_mean_deg": 5.1,
+   "dist_to_flood_prone_urban_m": 1945,
+   "landcover": "lavoura"
+  },
+  {
+   "lat": -29.43826,
+   "lon": -51.98112,
+   "area_ha": 29.8,
+   "hand_mean_m": 25.3,
+   "height_above_main_water_m": 64.1,
+   "slope_mean_deg": 5.1,
+   "dist_to_flood_prone_urban_m": 416,
+   "landcover": "lavoura"
+  },
+  {
+   "lat": -29.47207,
+   "lon": -51.93289,
+   "area_ha": 29.7,
+   "hand_mean_m": 24.0,
+   "height_above_main_water_m": 40.7,
+   "slope_mean_deg": 4.5,
+   "dist_to_flood_prone_urban_m": 142,
+   "landcover": "lavoura"
+  },
+  {
+   "lat": -29.49154,
+   "lon": -51.94302,
+   "area_ha": 26.8,
+   "hand_mean_m": 23.9,
+   "height_above_main_water_m": 48.1,
+   "slope_mean_deg": 4.3,
+   "dist_to_flood_prone_urban_m": 54,
+   "landcover": "urbano"
+  },
+  {
+   "lat": -29.50076,
+   "lon": -51.82168,
+   "area_ha": 25.6,
+   "hand_mean_m": 23.2,
+   "height_above_main_water_m": 63.0,
+   "slope_mean_deg": 4.3,
+   "dist_to_flood_prone_urban_m": 1371,
+   "landcover": "lavoura"
+  },
+  {
+   "lat": -29.38425,
+   "lon": -52.00783,
+   "area_ha": 25.4,
+   "hand_mean_m": 25.3,
+   "height_above_main_water_m": 76.5,
+   "slope_mean_deg": 4.4,
+   "dist_to_flood_prone_urban_m": 684,
+   "landcover": "lavoura"
+  },
+  {
+   "lat": -29.54305,
+   "lon": -51.92643,
+   "area_ha": 25.4,
+   "hand_mean_m": 29.7,
+   "height_above_main_water_m": 67.4,
+   "slope_mean_deg": 4.7,
+   "dist_to_flood_prone_urban_m": 1484,
+   "landcover": "lavoura"
+  },
+  {
+   "lat": -29.418,
+   "lon": -52.03235,
+   "area_ha": 24.9,
+   "hand_mean_m": 20.8,
+   "height_above_main_water_m": 52.8,
+   "slope_mean_deg": 2.9,
+   "dist_to_flood_prone_urban_m": 309,
+   "landcover": "campo"
+  },
+  {
+   "lat": -29.48522,
+   "lon": -51.9508,
+   "area_ha": 24.7,
+   "hand_mean_m": 21.2,
+   "height_above_main_water_m": 40.6,
+   "slope_mean_deg": 4.3,
+   "dist_to_flood_prone_urban_m": 27,
+   "landcover": "urbano"
+  },
+  {
+   "lat": -29.42965,
+   "lon": -52.00245,
+   "area_ha": 24.6,
+   "hand_mean_m": 24.2,
+   "height_above_main_water_m": 86.7,
+   "slope_mean_deg": 4.3,
+   "dist_to_flood_prone_urban_m": 341,
+   "landcover": "urbano"
+  },
+  {
+   "lat": -29.50476,
+   "lon": -51.85806,
+   "area_ha": 24.5,
+   "hand_mean_m": 24.8,
+   "height_above_main_water_m": 49.9,
+   "slope_mean_deg": 5.2,
+   "dist_to_flood_prone_urban_m": 1237,
+   "landcover": "lavoura"
+  },
+  {
+   "lat": -29.49933,
+   "lon": -51.99146,
+   "area_ha": 24.1,
+   "hand_mean_m": 25.3,
+   "height_above_main_water_m": 44.3,
+   "slope_mean_deg": 4.6,
+   "dist_to_flood_prone_urban_m": 148,
+   "landcover": "lavoura"
+  },
+  {
+   "lat": -29.3771,
+   "lon": -51.89178,
+   "area_ha": 24.0,
+   "hand_mean_m": 19.6,
+   "height_above_main_water_m": 37.0,
+   "slope_mean_deg": 3.2,
+   "dist_to_flood_prone_urban_m": 537,
+   "landcover": "lavoura"
+  },
+  {
+   "lat": -29.39479,
+   "lon": -51.99675,
+   "area_ha": 23.9,
+   "hand_mean_m": 26.0,
+   "height_above_main_water_m": 50.5,
+   "slope_mean_deg": 5.2,
+   "dist_to_flood_prone_urban_m": 183,
+   "landcover": "lavoura"
+  }
+ ]
+}
