@@ -46,5 +46,5 @@ it("inicia no exemplo real, troca o ponto e permite voltar ao exemplo",()=>{
   expect(container.querySelector('.home-rain-row strong')?.textContent).toBe('100 mm');
 });
 it("abre a tela de apoio pelo link principal",()=>{
-  expect(container.querySelector('.home-support')?.getAttribute('href')).toBe('/apoio');
+  expect(container.querySelector('.site-nav-primary')?.getAttribute('href')).toBe('/apoio');
 });
