@@ -17,6 +17,9 @@ import HistoricalChart from "./components/Charts/HistoricalChart";
 import ProjectionChart from "./components/Charts/ProjectionChart";
 import { TemporalPlayer } from "./components/TemporalPlayer";
 import { useTemporalPlayback } from "./hooks/useTemporalPlayback";
+import { YearComparison } from "./components/Dashboard/YearComparison";
+import { DataCoverage } from "./components/Dashboard/DataCoverage";
+import { BlockSelector } from "./components/Dashboard/BlockSelector";
 import { snapshotMode } from "./services/api";
 
 export default function App() {
@@ -156,25 +159,35 @@ function Dossier({ data }: { data: Snapshot }) {
               mode={mode}
               hovered={cell}
               onHover={setHoverIJ}
-              onSelect={setPinnedIJ}
+              onSelect={(ij) => {
+                setPinnedIJ(ij);
+                setHoverIJ(null);
+              }}
             />
-            {pinnedIJ && (
-              <button
-                className="clear-cell"
-                onClick={() => {
-                  setPinnedIJ(null);
-                  setHoverIJ(null);
-                }}
-              >
-                Limpar seleção da célula
-              </button>
-            )}
+            <BlockSelector
+              data={data}
+              selected={pinnedIJ}
+              onSelect={(ij) => {
+                setPinnedIJ(ij);
+                setHoverIJ(null);
+              }}
+              onClear={() => {
+                setPinnedIJ(null);
+                setHoverIJ(null);
+              }}
+            />
             <Legend mode={mode} />
           </div>
           <RegionPanel data={data} summary={summary} cell={cell} />
         </div>
       </section>
 
+      <YearComparison
+        data={data}
+        year={year}
+        onSelectYear={playback.selectYear}
+        block={pinnedIJ}
+      />
       <section className="exhibit">
         <div className="exhibit-head">
           <p className="exhibit-tag">Peça B</p>
@@ -192,6 +205,7 @@ function Dossier({ data }: { data: Snapshot }) {
         />
       </section>
 
+      <DataCoverage data={data} />
       <div className="pending-row">
         <section className="exhibit">
           <div className="exhibit-head">
@@ -200,6 +214,7 @@ function Dossier({ data }: { data: Snapshot }) {
           </div>
           <ForecastCard />
         </section>
+
         <section className="exhibit">
           <div className="exhibit-head">
             <p className="exhibit-tag">Peça D</p>
