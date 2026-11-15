@@ -1,0 +1,7 @@
+# Python
+backend/.venv/
+__pycache__/
+*.pyc
+
+# Cache local do mosaico NASADEM (~100 MB), regenerado por backend/scripts/build_terrain.py
+backend/data/terrain/
