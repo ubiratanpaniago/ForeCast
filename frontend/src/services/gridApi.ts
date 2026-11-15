@@ -3,7 +3,7 @@ import { studyBounds } from "../types/grid";
 import type { IndicatorId, Period, RegionsGeoJSON } from "../types/geography";
 import { parseTrendResult } from "./trendContract";
 import { indicators } from "../components/Map/MapLayers";
-export const gridApiMode = import.meta.env.VITE_GRID_MODE === "api";
+export const gridApiMode = import.meta.env.VITE_GRID_MODE !== "local";
 const base = (
   import.meta.env.VITE_API_BASE_URL || "http://localhost:8000"
 ).replace(/\/$/, "");
@@ -118,6 +118,9 @@ export function parseGridCells(
     )
       throw new Error("Célula inválida ou ID duplicado.");
     ids.add(p.id);
+    if (p.annualValue !== undefined &&
+      (data.year !== period.end || !(p.annualValue === null || (finite(p.annualValue) && p.annualValue >= 0))))
+      throw new Error("Valor anual inválido ou de outro ano.");
     const [w, s, e, n] = p.bounds;
     const near = (a: number, b: number) => Math.abs(a - b) < 1e-6;
     if (

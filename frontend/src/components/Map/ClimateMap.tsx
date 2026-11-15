@@ -18,6 +18,7 @@ import type {
 import { valueColor, evidenceOf } from "./MapLayers";
 import { MapControls } from "./MapControls";
 import { RegionTooltip } from "./RegionTooltip";
+import { annualColor } from "../../lib/annualColor";
 const bounds: [[number, number], [number, number]] = [
   [-58, -34],
   [-47, -22],
@@ -30,6 +31,7 @@ interface Props {
   layer: LayerId;
   selectedRegionId: string | null;
   onRegionSelect: (id: string) => void;
+  annualMaximum?: number;
 }
 export function ClimateMap({
   contextRegions,
@@ -39,6 +41,7 @@ export function ClimateMap({
   layer,
   selectedRegionId,
   onRegionSelect,
+  annualMaximum,
 }: Props) {
   const container = useRef<HTMLDivElement>(null);
   const map = useRef<MapInstance | null>(null);
@@ -120,7 +123,7 @@ export function ClimateMap({
         source: "regions",
         paint: {
           "line-color": "#c4cec4",
-          "line-width": 1,
+          "line-width": ["interpolate", ["linear"], ["zoom"], 3, 0.12, 6, 0.4, 9, 0.8],
           "line-opacity": 0.65,
         },
       });
@@ -209,8 +212,8 @@ export function ClimateMap({
           ...feature,
           properties: {
             ...feature.properties,
-            color: valueColor(layer, value, indicator),
-            evidence: layer === "neutral" ? "missing" : evidenceOf(value),
+            color: annualMaximum ? annualColor(feature.properties.annualValue, annualMaximum) : valueColor(layer, value, indicator),
+            evidence: annualMaximum || layer === "neutral" ? "missing" : evidenceOf(value),
           },
         };
       }),
@@ -218,7 +221,7 @@ export function ClimateMap({
     (map.current?.getSource("regions") as GeoJSONSource | undefined)?.setData(
       data,
     );
-  }, [ready, regions, values, layer, indicator]);
+  }, [ready, regions, values, layer, indicator, annualMaximum]);
   useEffect(() => {
     if (ready)
       map.current?.setFilter("region-selected", [

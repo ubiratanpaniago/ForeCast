@@ -26,6 +26,9 @@ export function GridCellPanel({
       ) : (
         <>
           <h2>{cell.id}</h2>
+          {cell.annualValue !== undefined && <p>
+            Último ano do período: {cell.annualValue === null ? "Sem dados completos" : `${cell.annualValue.toLocaleString("pt-BR", { maximumFractionDigits: 2 })} ${detail?.metadata.unit ?? ""}`}
+          </p>}
           <dl>
             <dt>Grade</dt>
             <dd>{grid?.name}</dd>
@@ -91,7 +94,7 @@ export function GridCellPanel({
                     nenhum teste foi calculado no navegador.
                   </p>
                 )}
-                <details className="annual-series">
+                <details className="annual-series" open>
                   <summary>
                     Série anual ·{" "}
                     {detail.series.filter((p) => p.value !== null).length}/
