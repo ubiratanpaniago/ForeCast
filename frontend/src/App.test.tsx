@@ -4,7 +4,7 @@ import { renderToString } from "react-dom/server";
 vi.mock("./components/Map/ClimateMap", () => ({
   ClimateMap: () => <div>Mapa</div>,
 }));
-import App from "./App";
+import App from "./NativeGridExplorer";
 it("renderiza enquanto catálogo, grade e seleção ainda estão ausentes", () => {
   const html = renderToString(<App />);
   expect(html).toContain("Carregando catálogo");
