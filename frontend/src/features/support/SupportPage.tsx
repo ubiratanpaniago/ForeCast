@@ -42,7 +42,7 @@ export default function SupportPage({calculatedPoints=null}:{calculatedPoints?:S
     <header className="support-header">
       <a href="/" className="support-brand" aria-label="ForeCast, voltar ao início">ForeCast<span>.</span><small>Chuva, história e cuidado.</small></a>
       <div className="support-heading"><h1>Como encontrar apoio na sua região</h1><a href="/">← Voltar ao início</a></div>
-      <a href="/apoio" aria-current="page" className="support-current">Apoio <span aria-hidden="true">↗</span></a>
+      <a href="/" aria-label="Voltar ao menu principal" className="support-current">Menu <span aria-hidden="true">↖</span></a>
     </header>
     <main className="support-body" id="support-content">
       <section className="support-map-panel" aria-label="Mapa do Sul do Brasil">

@@ -174,3 +174,35 @@
 .home-static-date strong { font: 25px var(--serif); }
 .home-static-note { margin: 15px 7px 0 36px; color: var(--ink-2); font-size: 16px; }
 .home-coordinate { font-size: 16px; margin: 6px 0 0; color: var(--ink-2); }
+
+/* Ajusta o painel desktop ao tamanho visível da janela. */
+@media (min-width: 761px) {
+  html:has(.simple-home), body:has(.simple-home), #root:has(.simple-home) { height: 100%; overflow: hidden; }
+  .simple-home { height: 100dvh; min-height: 0; max-width: none; display: grid; grid-template-rows: clamp(82px, 14vh, 106px) minmax(0, 1fr) 30px; overflow: hidden; }
+  .home-header { height: 100%; min-height: 0; overflow: hidden; }
+  .home-dashboard { height: 100%; min-height: 0; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); overflow: hidden; }
+  .home-map-column { min-height: 0; overflow: hidden; display: flex; flex-direction: column; padding-top: clamp(12px, 2.5vh, 25px); padding-bottom: clamp(8px, 2vh, 22px); }
+  .simple-home .home-static-date { margin-bottom: clamp(6px, 1.5vh, 16px); padding-bottom: clamp(5px, 1vh, 12px); }
+  .simple-home .map-frame { flex: 1; min-height: 0; display: flex; justify-content: center; align-items: center; overflow: hidden; }
+  .simple-home .map { height: min(100%, calc((100vw - 20px) * .46)); width: auto; max-height: 100% !important; max-width: 100% !important; aspect-ratio: .81 !important; flex: none; }
+  .home-map-key { margin-top: clamp(7px, 1.5vh, 17px); }
+  .home-map-key-note { margin-top: clamp(4px, 1vh, 10px); margin-bottom: clamp(4px, 1vh, 12px); }
+  .home-static-note { margin-top: clamp(4px, 1vh, 12px); font-size: clamp(12px, 1.5vh, 16px); }
+  .home-reading-column { height: 100%; min-height: 0; overflow: hidden; align-self: stretch; position: static; display: grid; grid-template-rows: minmax(0, 55%) minmax(0, 1fr) clamp(72px, 13vh, 110px); }
+  .home-summary { min-height: 0; overflow: hidden; padding: clamp(12px, 2.7vh, 25px) clamp(18px, 2.7vw, 34px) clamp(8px, 2vh, 20px); }
+  .home-place { margin-top: clamp(7px, 1.4vh, 12px); }
+  .home-place-note, .home-coordinate { font-size: clamp(12px, 1.6vh, 16px); margin-top: clamp(3px, .7vh, 6px); }
+  .home-comparison { font-size: clamp(23px, 3.8vh, 31px); margin: clamp(7px, 1.8vh, 16px) 0; }
+  .home-rain-row { margin-bottom: clamp(5px, 1.3vh, 13px); }
+  .home-rain-label { font-size: clamp(14px, 1.8vh, 18px); }
+  .home-reference-explanation, .home-forecast-note { font-size: clamp(12px, 1.6vh, 16px); }
+  .home-history { min-height: 0; overflow: hidden; display: flex; flex-direction: column; padding: clamp(10px, 2.2vh, 20px) clamp(18px, 2.7vw, 34px); }
+  .home-history>p { font-size: clamp(12px, 1.6vh, 16px); margin: 6px 0 8px; }
+  .home-history-chart { flex: 1; min-height: 0; width: 100%; height: 100%; max-height: 100%; }
+  .home-chart-key { margin-top: 6px; font-size: clamp(12px, 1.6vh, 15px); }
+  .home-understand { min-height: clamp(68px, 13vh, 112px); padding: clamp(10px, 2vh, 20px) clamp(18px, 2.7vw, 34px); }
+  .home-footer { min-height: 30px; padding: 5px 24px; align-items: center; flex-wrap: nowrap; font-size: 12px; }
+}
+
+.home-analysis-link{align-self:flex-start;margin-top:7px;font-size:14px;color:var(--wet);text-decoration:underline!important;text-underline-offset:3px}
+@media(min-width:761px){.home-header-copy{padding-top:10px;padding-bottom:10px}.home-header-copy h1{font-size:clamp(24px,3.5vh,30px)}.home-header-copy p{font-size:clamp(13px,1.8vh,16px);margin-top:4px}.home-analysis-link{font-size:clamp(11px,1.5vh,14px);margin-top:4px}}

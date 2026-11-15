@@ -60,7 +60,7 @@ export default function SimpleHome() {
     <a className="home-skip" href="#home-main">Ir para o conteúdo</a>
     <header className="home-header">
       <a className="home-brand" href="/" aria-label="ForeCast, página principal"><span>ForeCast<span className="home-brand-dot">.</span></span><small>Chuva, história e cuidado.</small></a>
-      <div className="home-header-copy"><h1>As chuvas na sua região</h1><p>Veja o mapa. Escolha um lugar. Entenda as mudanças.</p></div>
+      <div className="home-header-copy"><h1>As chuvas na sua região</h1><p>Veja o mapa. Escolha um lugar. Entenda as mudanças.</p><a className="home-analysis-link" href="/analise">Análise de estradas e relevo →</a></div>
       <a className="home-support" href="/apoio" style={{textDecoration:"none"}}>
         <span className="home-support-icon" aria-hidden="true">＋</span><span>Apoio<small>Informações e orientação</small></span><span aria-hidden="true">↗</span>
       </a>

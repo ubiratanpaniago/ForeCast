@@ -68,3 +68,21 @@
 .support-how i{position:absolute;right:30px;top:50%;font:26px var(--sans);font-style:normal;transform:translateY(-50%)}
 @media(max-height:780px){.support-reference .support-header{height:82px}.support-reference .support-brand>span{top:10px}.support-nearest,.support-region{padding:16px 25px}.support-nearest-card{margin-top:12px;padding:12px 16px;min-height:108px}.support-nearest-card h3{font-size:23px}.support-nearest-actions{margin-top:7px}.support-reference .support-section-title h2{font-size:23px}.support-reference-bars{margin-top:10px;gap:8px}.support-region-description{font-size:20px;margin:9px 0}.support-period{margin:7px 0}.support-reference-bar>div{height:19px}.support-coordinate{margin:5px 0 0}.support-how strong{font-size:28px}}
 @media(max-height:780px){.support-page{grid-template-rows:82px minmax(0,1fr) 26px}.support-heading{padding:10px 25px}.support-heading h1{font-size:27px}.support-brand{font-size:35px!important}.support-brand>span{top:13px;left:160px}.support-nearby{padding:10px 20px 5px}.support-filter{margin:6px 0}.support-tab-content{padding:10px 20px}.support-tab-content h3{font-size:22px;margin:6px 0}.support-tab-content p{font-size:13px;margin:7px 0}.support-facts{padding:6px 0;margin:8px 0}.support-confirmation{padding:7px 20px}.support-evidence{margin:8px 0;gap:4px}.support-map-panel{padding-top:12px}}
+
+/* Ajusta a tela de apoio à área visível da janela. */
+.support-reference { width: 100%; min-width: 1024px; max-width: none; grid-template-rows: clamp(76px, 14vh, 100px) minmax(0, 1fr) auto; }
+.support-reference .support-header { height: 100%; min-height: 0; }
+.support-reference .support-body { height: 100%; min-height: 0; overflow: hidden; }
+.support-reference .support-map-panel { min-width: 0; padding-top: clamp(8px, 1.7vh, 18px); padding-bottom: clamp(5px, 1vh, 10px); }
+.support-reference .support-map-controls button { min-height: clamp(32px, 5vh, 38px); }
+.support-reference .support-nearest, .support-reference .support-region { padding: clamp(10px, 2.4vh, 22px) clamp(18px, 2.4vw, 30px); }
+.support-reference .support-nearest-card { margin-top: clamp(8px, 2vh, 18px); min-height: 0; padding: clamp(8px, 1.7vh, 16px) clamp(12px, 1.7vw, 20px); }
+.support-reference .support-region-description { font-size: clamp(17px, 2.5vh, 21px); margin: clamp(5px, 1.2vh, 11px) 0; }
+.support-reference .support-reference-bars { gap: clamp(5px, 1.2vh, 10px); margin-top: clamp(6px, 1.5vh, 14px); }
+.support-reference .support-reference-bar>div { height: clamp(16px, 3.2vh, 23px); }
+.support-reference .support-how { min-height: 0 !important; }
+.support-reference .support-footer { min-height: clamp(24px, 4.2vh, 32px); padding: 4px 18px; }
+.support-reference .support-header { background: var(--ink); color: var(--paper); border-bottom-color: var(--ink); }
+.support-reference .support-brand small, .support-reference .support-heading>a { color: var(--paper-2); }
+.support-reference .support-brand>span { color: #e7a47b; }
+.support-reference .support-current { background: var(--accent); color: white; border-left-color: var(--ink); }

@@ -87,6 +87,15 @@ export function RegionalMap(props: Props) {
       }),
     );
     map.current = m;
+    let fitted = false;
+    const resize = new ResizeObserver(() => {
+      m.resize();
+      if (!fitted && box.current?.clientWidth && box.current.clientHeight) {
+        m.fitBounds(BOUNDS, { padding: 24 });
+        fitted = true;
+      }
+    });
+    resize.observe(box.current);
     m.on("load", () => {
       for (const id of ["regions", "terrain", "roads", "crossings"])
         m.addSource(id, { type: "geojson", data: EMPTY, promoteId: "id" });
@@ -190,6 +199,7 @@ export function RegionalMap(props: Props) {
       if (!/abort/i.test(String(e.error?.message))) setError("Falha ao desenhar o mapa.");
     });
     return () => {
+      resize.disconnect();
       m.remove();
       map.current = null;
     };
