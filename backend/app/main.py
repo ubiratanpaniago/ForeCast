@@ -8,7 +8,8 @@ from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException
 
 from app.config import Settings
-from app.routers import health, snapshot
+from app.routers import health, snapshot, grids
+from app.services.grid_repository import GridRepository, GridRequestError
 from app.services.snapshot_repository import DataError, SnapshotRepository
 
 
@@ -18,14 +19,19 @@ def create_app(settings: Settings | None = None):
     @asynccontextmanager
     async def lifespan(app):
         app.state.snapshots = SnapshotRepository(settings.snapshot_path)
+        app.state.grids = GridRepository(settings.grids_path)
         yield
 
-    app = FastAPI(title='ForeCast API', version='0.1.0', lifespan=lifespan)
+    app = FastAPI(title='ForeCast API', version='0.2.0', lifespan=lifespan)
     app.add_middleware(CORSMiddleware, allow_origins=list(settings.cors_origins), allow_methods=['GET'], allow_headers=['If-None-Match'], expose_headers=['ETag', 'X-Data-Generated'])
 
     @app.exception_handler(DataError)
     async def data_error(request: Request, error: DataError):
         return JSONResponse({'error': {'code': error.code, 'message': error.message}}, status_code=503, headers={'Cache-Control': 'no-store'})
+
+    @app.exception_handler(GridRequestError)
+    async def grid_error(request: Request, error: GridRequestError):
+        return JSONResponse({'error': {'code': error.code, 'message': error.message}}, status_code=error.status, headers={'Cache-Control': 'no-store'})
 
     @app.exception_handler(HTTPException)
     async def http_error(request: Request, error: HTTPException):
@@ -42,6 +48,7 @@ def create_app(settings: Settings | None = None):
 
     app.include_router(health.router)
     app.include_router(snapshot.router)
+    app.include_router(grids.router)
     return app
 
 

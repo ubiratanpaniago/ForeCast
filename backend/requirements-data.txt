@@ -1,0 +1,6 @@
+# Processing is offline once raw subsets are present; the API needs only requirements.txt.
+numpy>=1.26,<3
+xarray>=2024.1
+netCDF4>=1.6,<2
+shapely>=2,<3
+pyproj>=3.6,<4
