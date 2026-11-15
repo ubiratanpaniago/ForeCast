@@ -15,6 +15,9 @@ import YearStrip from "./components/Dashboard/YearStrip";
 import ForecastCard from "./components/Dashboard/ForecastCard";
 import HistoricalChart from "./components/Charts/HistoricalChart";
 import ProjectionChart from "./components/Charts/ProjectionChart";
+import { TemporalPlayer } from "./components/TemporalPlayer";
+import { useTemporalPlayback } from "./hooks/useTemporalPlayback";
+import { snapshotMode } from "./services/api";
 
 export default function App() {
   const state = useSnapshot();
@@ -25,6 +28,7 @@ export default function App() {
       <div className="status status--error">
         <p className="eyebrow">Evidência ausente</p>
         <p>{state.error}</p>
+        <button onClick={state.retry}>Tentar novamente</button>
       </div>
     );
   return <Dossier data={state.data} />;
@@ -33,6 +37,7 @@ export default function App() {
 function Dossier({ data }: { data: Snapshot }) {
   const land = useGridLand(data);
   const [year, setYear] = useState(data.years[data.years.length - 1]);
+  const playback = useTemporalPlayback(data.years, year, setYear);
   const [mode, setMode] = useState<MapMode>("anomaly");
   const [series, setSeries] = useState<SeriesKey>("precipitation");
   const [pinnedIJ, setPinnedIJ] = useState<[number, number] | null>(null);
@@ -62,6 +67,11 @@ function Dossier({ data }: { data: Snapshot }) {
       <header className="masthead">
         <div className="masthead-row">
           <span className="brand">ForeCast · Dossiê exploratório</span>
+          <span className="mono muted">
+            {snapshotMode === "api"
+              ? "Dados via API"
+              : "Arquivo estático · modo demonstração"}
+          </span>
           <a href="/grids">Explorador de grades nativas →</a>
           <span className="mono muted">
             Dossiê 01 · BBOX de estudo · {Math.abs(bbox.west)}°–
@@ -79,14 +89,14 @@ function Dossier({ data }: { data: Snapshot }) {
           no recorte terrestre do BBOX foi{" "}
           <button
             className="inline-year is-dry"
-            onClick={() => setYear(extremes.dry)}
+            onClick={() => playback.selectYear(extremes.dry)}
           >
             {extremes.dry} ({pct(extremes.dryA)})
           </button>
           ; o de maior média,{" "}
           <button
             className="inline-year is-wet"
-            onClick={() => setYear(extremes.wet)}
+            onClick={() => playback.selectYear(extremes.wet)}
           >
             {extremes.wet} ({pct(extremes.wetA)})
           </button>
@@ -107,7 +117,7 @@ function Dossier({ data }: { data: Snapshot }) {
           </span>
           <span className="mono muted">← → para navegar</span>
         </div>
-        <YearStrip data={data} year={year} onSelect={setYear} />
+        <YearStrip data={data} year={year} onSelect={playback.selectYear} />
       </section>
 
       <section className="exhibit exhibit--map">
@@ -136,6 +146,7 @@ function Dossier({ data }: { data: Snapshot }) {
             </button>
           </div>
         </div>
+        <TemporalPlayer years={data.years} year={year} playback={playback} />
         <div className="map-layout">
           <div>
             <ClimateMap
@@ -177,7 +188,7 @@ function Dossier({ data }: { data: Snapshot }) {
           series={series}
           onSeriesChange={setSeries}
           year={year}
-          onSelectYear={setYear}
+          onSelectYear={playback.selectYear}
         />
       </section>
 

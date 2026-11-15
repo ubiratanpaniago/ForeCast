@@ -7,19 +7,29 @@ type State =
   | { status: "error"; error: string }
   | { status: "ready"; data: Snapshot };
 
-export function useSnapshot(): State {
+export function useSnapshot(): State & { retry: () => void } {
   const [state, setState] = useState<State>({ status: "loading" });
+  const [attempt, setAttempt] = useState(0);
   useEffect(() => {
     const ctrl = new AbortController();
+    setState({ status: "loading" });
     fetchSnapshot(ctrl.signal)
-      .then((data) => setState({ status: "ready", data }))
+      .then((data) => {
+        if (!ctrl.signal.aborted) setState({ status: "ready", data });
+      })
       .catch((e: Error) => {
         if (!ctrl.signal.aborted)
-          setState({ status: "error", error: e.message });
+          setState({
+            status: "error",
+            error:
+              e instanceof TypeError
+                ? "Não foi possível conectar à API. Verifique se o backend está em execução."
+                : e.message,
+          });
       });
     return () => ctrl.abort();
-  }, []);
-  return state;
+  }, [attempt]);
+  return { ...state, retry: () => setAttempt((value) => value + 1) };
 }
 
 const nearest = (arr: number[], x: number) => {

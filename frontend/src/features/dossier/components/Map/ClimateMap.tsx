@@ -1,4 +1,5 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import { SouthContext } from "./SouthContext";
 import type { CellReading, MapMode, Snapshot } from "../../types/climate";
 import { anomalyColor, totalColor } from "../../lib/color";
 import { anomalyPct } from "../../hooks/useRegionData";
@@ -31,6 +32,7 @@ export default function ClimateMap({
   onSelect,
 }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [highlightSouth, setHighlightSouth] = useState(true);
   const { grid, meta } = data;
   const { bbox } = meta;
   const nlat = grid.lat.length;
@@ -78,9 +80,18 @@ export default function ClimateMap({
 
   return (
     <div className="map-frame">
+      <div className="map-focus-controls">
+        <button
+          onClick={() => setHighlightSouth((v) => !v)}
+          aria-pressed={highlightSouth}
+        >
+          {highlightSouth ? "Sul em destaque" : "Recorte completo"}
+        </button>
+        <span>Limites estaduais · IBGE</span>
+      </div>
       <div
         className="map"
-        style={{ aspectRatio: String(aspect) }}
+        style={{ aspectRatio: String(aspect), maxWidth: `${aspect * 80}dvh` }}
         onPointerMove={(e) => onHover(indexFromEvent(e))}
         onPointerDown={(e) => {
           const index = indexFromEvent(e);
@@ -130,10 +141,15 @@ export default function ClimateMap({
         >
           <Graticule bbox={bbox} />
           <Coastline mask={data.landMask} />
+          <SouthContext bbox={bbox} highlight={highlightSouth} />
           <HoverMarker cell={hovered} res={grid.res} />
         </svg>
         <GraticuleLabels bbox={bbox} />
       </div>
+      <p className="map-focus-note">
+        Destaque visual de PR, SC e RS. Os valores e as médias continuam
+        referentes ao recorte original do snapshot.
+      </p>
     </div>
   );
 }
