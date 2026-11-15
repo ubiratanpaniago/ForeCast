@@ -22,25 +22,6 @@
   color-scheme: light;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --paper: #13130f;
-    --paper-2: #1c1b16;
-    --card: #191813;
-    --ink: #ece6d6;
-    --ink-2: #c3bba8;
-    --muted: #8d8676;
-    --rule: #34322a;
-    --rule-strong: #ece6d6;
-    --dry: #e0955a;
-    --wet: #6cc0c4;
-    --accent: #f08a4b;
-    --sel: rgb(240 138 75 / 0.12);
-    --ocean: rgb(236 230 214 / 0.05);
-    color-scheme: dark;
-  }
-}
-
 *,
 *::before,
 *::after {
