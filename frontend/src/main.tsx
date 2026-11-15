@@ -6,6 +6,7 @@ if (window.location.pathname.startsWith("/grids")) {
 } else {
   void import("./features/dossier/styles/global.css");
   if (window.location.pathname.startsWith("/regioes")) void import("./features/regional/regional.css");
+  if (window.location.pathname.startsWith("/analise")) void import("./features/regional/regional.css");
 }
 import App from "./App";
 createRoot(document.getElementById("root")!).render(

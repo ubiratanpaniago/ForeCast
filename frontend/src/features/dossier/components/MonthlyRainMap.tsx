@@ -1,12 +1,13 @@
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, type ReactNode } from "react";
 import { SouthContext } from "./Map/SouthContext";
 import { Graticule, GraticuleLabels } from "./Map/MapLayers";
 import { anomalyColor, monthlyTotalColor } from "../lib/color";
 import { monthlyAnomaly, monthLabel, type MonthlyManifest } from "../services/monthlyApi";
 
-export function MonthlyRainMap({manifest,values,month,mode,selected,onSelect}: {
+export function MonthlyRainMap({manifest,values,month,mode,selected,onSelect,overlay}: {
   manifest:MonthlyManifest; values:Array<number|null>|null; month:string; mode:"total"|"anomaly";
   selected:number|null; onSelect:(index:number)=>void;
+  overlay?: ReactNode;
 }) {
   const canvas=useRef<HTMLCanvasElement>(null);
   const {grid,cells}=manifest;
@@ -60,6 +61,7 @@ export function MonthlyRainMap({manifest,values,month,mode,selected,onSelect}: {
           fill="none" stroke="var(--accent)" strokeWidth={2.5} vectorEffect="non-scaling-stroke" />}
       </svg>
       <GraticuleLabels bbox={bbox} />
+      {overlay}
       {!values&&<div className="monthly-map-loading" role="status">Carregando {monthLabel(month)}…</div>}
     </div>
     <p className="map-focus-note">IMERG 0,1° · células nativas inteiras com interseção em PR/SC/RS · limites IBGE simplificados.</p>
