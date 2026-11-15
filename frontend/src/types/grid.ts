@@ -24,6 +24,7 @@ export interface GridCell {
   bounds: BBox;
   fractionInside: number | null;
   summary: CellSummary | null;
+  annualValue?: number | null;
 }
 export interface GridCells extends FeatureCollection<Polygon, GridCell> {
   gridId: string;
@@ -31,6 +32,7 @@ export interface GridCells extends FeatureCollection<Polygon, GridCell> {
   indicator: IndicatorId;
   period: Period;
   truncated: boolean;
+  year?: number;
 }
 export interface CellDetail {
   gridId: string;

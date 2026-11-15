@@ -1070,3 +1070,10 @@ dd {
     min-height: 850px;
   }
 }
+
+.annual-mode { display: flex; align-items: center; gap: .65rem; padding: 1rem 1.5rem; font-size: .85rem; }
+.annual-legend { min-width: 230px; padding: .9rem 1rem; background: #19261fee; border: 1px solid #4b5b4b; font-size: .8rem; }
+.annual-legend strong, .annual-legend small { display: block; }
+.annual-legend small { margin-top: .35rem; color: #b6c4b3; }
+.annual-gradient { height: 10px; margin: .5rem 0; background: linear-gradient(90deg, rgb(224,242,209), rgb(32,110,157)); }
+.cell-panel h2 { overflow-wrap: anywhere; }

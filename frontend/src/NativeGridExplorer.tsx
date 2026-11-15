@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { ClimateMap } from "./components/Map/ClimateMap";
 import { LayerSelector } from "./components/Map/LayerSelector";
 import { MapLegend } from "./components/Map/MapLegend";
@@ -16,6 +16,7 @@ export default function App() {
   const [gridId, setGridId] = useState("imerg-monthly-v07");
   const [indicator, setIndicator] = useState<IndicatorId>("PRCP_ANNUAL");
   const [layer, setLayer] = useState<LayerId>("neutral");
+  const [annualVisible, setAnnualVisible] = useState(true);
   const [period, setPeriod] = useState("2001–2024");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [search, setSearch] = useState("");
@@ -46,7 +47,7 @@ export default function App() {
   const selected = activeCells?.features.find(
     (f) => f.properties.id === selectedId,
   )?.properties;
-  const mapRegions: RegionsGeoJSON = {
+  const mapRegions: RegionsGeoJSON = useMemo(() => ({
     type: "FeatureCollection",
     features: (activeCells?.features ?? []).map((f) => ({
       ...f,
@@ -54,14 +55,16 @@ export default function App() {
         id: f.properties.id,
         name: `Célula ${f.properties.id}`,
         abbreviation: "",
+        annualValue: f.properties.annualValue,
       },
     })),
-  };
-  const values: TrendResult[] = (activeCells?.features ?? []).flatMap((f) =>
+  }), [activeCells]);
+  const values: TrendResult[] = useMemo(() => (activeCells?.features ?? []).flatMap((f) =>
     f.properties.summary
       ? [{ ...f.properties.summary, regionId: f.properties.id, series: [] }]
       : [],
-  );
+  ), [activeCells]);
+  const annualMaximum = activeIndicator === "SOIL_SURFACE" ? 50 : 3000;
   const currentDetail =
     detail &&
     grid &&
@@ -175,7 +178,11 @@ export default function App() {
                 : (grid?.unavailableReason ?? "Verificando disponibilidade.")}
             </p>
           </section>
-          <LayerSelector value={layer} onChange={setLayer} />
+          <label className="annual-mode">
+            <input type="checkbox" checked={annualVisible} onChange={(e) => setAnnualVisible(e.target.checked)} />
+            Colorir pelo valor anual de {end}
+          </label>
+          {!annualVisible && <LayerSelector value={layer} onChange={setLayer} />}
           <form
             className="cell-search"
             onSubmit={(e) => {
@@ -210,7 +217,7 @@ export default function App() {
             layer={layer}
           />
           <div className="sidebar-foot">
-            NASA SPACE APPS <span>FRONTEND / SEM INGESTÃO</span>
+            NASA SPACE APPS <span>GRADES REAIS / API</span>
           </div>
         </aside>
         <section className="map-area" aria-label="Exploração das grades">
@@ -222,6 +229,7 @@ export default function App() {
             layer={layer}
             selectedRegionId={selected?.id ?? null}
             onRegionSelect={select}
+            annualMaximum={annualVisible ? annualMaximum : undefined}
           />
           <div className="map-top-info">
             <div>
@@ -247,12 +255,17 @@ export default function App() {
             </div>
           )}
           <div className="map-footer">
-            <MapLegend layer={layer} indicator={activeIndicator} />
+            {annualVisible ? <div className="annual-legend" aria-label="Legenda dos valores anuais">
+              <strong>{indicators[activeIndicator].name} · {end}</strong>
+              <div className="annual-gradient" />
+              <span>0 — ≥{annualMaximum.toLocaleString("pt-BR")} {indicators[activeIndicator].unit}</span>
+              <small>Cinza: ano sem dados completos</small>
+            </div> : <MapLegend layer={layer} indicator={activeIndicator} />}
             <p className="scientific-note">
               {layer === "neutral"
                 ? "Divisões geográficas = limites das células, quando disponíveis. "
                 : ""}
-              Células sem análise ficam neutras. Contorno estadual não
+              {annualVisible ? "Cor = valor anual, sem teste de tendência. " : "Células sem análise ficam neutras. "}Contorno estadual não
               representa tendência. Não há interpolação entre grades nem
               classificação de risco de inundação.
             </p>
