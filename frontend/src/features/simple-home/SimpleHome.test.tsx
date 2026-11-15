@@ -45,12 +45,6 @@ it("inicia no exemplo real, troca o ponto e permite voltar ao exemplo",()=>{
   act(()=>button('Voltar ao exemplo').click());
   expect(container.querySelector('.home-rain-row strong')?.textContent).toBe('100 mm');
 });
-it("abre o aviso de apoio e devolve o foco ao fechar",()=>{
-  const support=button('Apoio');support.focus();
-  act(()=>support.click());
-  const dialog=container.querySelector('dialog')!;
-  expect(dialog.open).toBe(true);
-  expect(dialog.textContent).toContain('Ainda não oferece alertas');
-  act(()=>button('Voltar para o mapa').click());
-  expect(dialog.open).toBe(false);expect(document.activeElement).toBe(support);
+it("abre a tela de apoio pelo link principal",()=>{
+  expect(container.querySelector('.home-support')?.getAttribute('href')).toBe('/apoio');
 });

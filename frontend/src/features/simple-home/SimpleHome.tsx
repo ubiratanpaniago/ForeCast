@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { RegionsGeoJSON } from "../../types/geography";
 import { getRegionGeometry } from "../../services/regionApi";
 import { MonthlyRainMap } from "../dossier/components/MonthlyRainMap";
@@ -26,9 +26,6 @@ export default function SimpleHome() {
   const [selectedId, setSelectedId] = useState(EXAMPLE_CELL_ID);
   const [retry, setRetry] = useState(0);
   const [regions, setRegions] = useState<RegionsGeoJSON | null>(null);
-  const [supportOpen, setSupportOpen] = useState(false);
-  const dialog = useRef<HTMLDialogElement>(null);
-  const supportButton = useRef<HTMLButtonElement>(null);
   const { manifest, frame, error } = useMonthlyRainfall(month, retry);
   const ready = !!frame && !error;
   useEffect(() => {
@@ -36,9 +33,6 @@ export default function SimpleHome() {
     void getRegionGeometry().then(data => { if (active) setRegions(data); }).catch(() => {});
     return () => { active = false; };
   }, []);
-  useEffect(() => {
-    if (supportOpen && !dialog.current?.open) dialog.current?.showModal();
-  }, [supportOpen]);
   const selected = useMemo(() => {
     if (!manifest || !selectedId) return null;
     const index = manifest.cells.findIndex(c => c.id === selectedId);
@@ -67,9 +61,9 @@ export default function SimpleHome() {
     <header className="home-header">
       <a className="home-brand" href="/" aria-label="ForeCast, página principal"><span>ForeCast<span className="home-brand-dot">.</span></span><small>Chuva, história e cuidado.</small></a>
       <div className="home-header-copy"><h1>As chuvas na sua região</h1><p>Veja o mapa. Escolha um lugar. Entenda as mudanças.</p></div>
-      <button ref={supportButton} className="home-support" onClick={() => setSupportOpen(true)} aria-haspopup="dialog">
+      <a className="home-support" href="/apoio" style={{textDecoration:"none"}}>
         <span className="home-support-icon" aria-hidden="true">＋</span><span>Apoio<small>Informações e orientação</small></span><span aria-hidden="true">↗</span>
-      </button>
+      </a>
     </header>
     <main id="home-main" className="home-dashboard" tabIndex={-1}>
       <section className="home-map-column" aria-labelledby="home-map-title">
@@ -106,13 +100,6 @@ export default function SimpleHome() {
       </div>
     </main>
     <footer className="home-footer"><span>ForeCast · Paraná, Santa Catarina e Rio Grande do Sul</span><span>Dados NASA · Informações históricas, sem avaliação de rota segura.</span></footer>
-    <dialog ref={dialog} className="home-support-dialog" aria-labelledby="home-support-title" aria-describedby="home-support-description"
-      onClose={() => { setSupportOpen(false); supportButton.current?.focus(); }}>
-      <span className="home-step">APOIO</span><h2 id="home-support-title">Estamos preparando este espaço.</h2>
-      <p id="home-support-description">A tela de apoio será desenvolvida em uma próxima etapa. Ela vai reunir informações para ajudar você a se orientar.</p>
-      <p>Por enquanto, o ForeCast mostra o histórico das chuvas. Ainda não oferece alertas, abrigos confirmados ou rotas de emergência.</p>
-      <p>Em uma emergência, siga as orientações dos órgãos locais responsáveis.</p>
-      <button onClick={() => dialog.current?.close()}>Voltar para o mapa</button>
-    </dialog>
+
   </div>;
 }
