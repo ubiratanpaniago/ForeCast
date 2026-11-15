@@ -8,7 +8,7 @@ import { ANOMALY_STOPS, TOTAL_STOPS } from "../lib/color";
 
 const EMPTY_MONTHS:string[]=[];
 const number=(v:number|null,unit="mm")=>v===null?"Indisponível":`${v.toLocaleString("pt-BR",{maximumFractionDigits:2})} ${unit}`;
-export function MonthlyRainExplorer() {
+export function MonthlyRainExplorer({compact=false}:{compact?:boolean}={}) {
   const [month,setMonth]=useState("2001-01");
   const [mode,setMode]=useState<"total"|"anomaly">("total");
   const [selected,setSelected]=useState<number|null>(null);
@@ -32,9 +32,14 @@ export function MonthlyRainExplorer() {
   const index=manifest?.months.indexOf(month)??0;
   const chooseMonth=(value:string)=>{if(manifest?.months.includes(value))playback.select(value);};
   const select=(i:number)=>{setSelected(i);setSearchError("");};
-  return <section className="exhibit monthly-explorer" aria-label="Exploração mensal da chuva">
-    <div className="exhibit-head"><p className="exhibit-tag">Mapa mensal</p>
-      <h2>{mode==="total"?"Chuva acumulada":"Anomalia de chuva"} · <span className="year-mark">{monthLabel(month)}</span></h2>
+  const searchForm=manifest?<form className="monthly-cell-search" onSubmit={e=>{e.preventDefault();const i=manifest.cells.findIndex(c=>c.id===search.trim());if(i<0)setSearchError("ID não encontrado na grade mensal.");else select(i);}}>
+          <label htmlFor="monthly-cell-id">Selecionar célula pelo ID nativo</label><div><input id="monthly-cell-id" value={search} onChange={e=>setSearch(e.target.value)} placeholder="imerg-monthly-v07:r…:c…"/>
+            <button>Selecionar célula</button></div>{searchError&&<p role="alert">{searchError}</p>}
+        </form>:null;
+  return <section className={`exhibit monthly-explorer${compact?" is-compact":""}`} aria-label="Exploração mensal da chuva">
+    <div className="exhibit-head">{!compact&&<p className="exhibit-tag">Mapa mensal</p>}
+      {compact?<h2 className="dossier-col-title">Onde choveu mais ou menos <span aria-hidden="true">•</span> <small>{mode==="total"?"Acumulado":"Anomalia"} {monthLabel(month)}</small></h2>
+      :<h2>{mode==="total"?"Chuva acumulada":"Anomalia de chuva"} · <span className="year-mark">{monthLabel(month)}</span></h2>}
       <div className="seg" role="tablist" aria-label="Modo do mapa mensal">
         <button className="seg-btn" role="tab" aria-selected={mode==="total"} onClick={()=>setMode("total")}>Chuva mensal · mm</button>
         <button className="seg-btn" role="tab" aria-selected={mode==="anomaly"} onClick={()=>setMode("anomaly")}>Anomalia · %</button>
@@ -55,7 +60,7 @@ export function MonthlyRainExplorer() {
       </div>
       <div className="player-track"><span>jan/2001</span><input type="range" aria-label="Selecionar mês da animação" aria-valuetext={monthLabel(month)}
         min={0} max={287} step={1} value={index} disabled={!manifest} onChange={e=>playback.select(manifest!.months[Number(e.target.value)])}/><span>dez/2024</span></div>
-      <p>Um quadro por mês · 288 meses observados · carregamento em blocos anuais com antecipação dos próximos quadros.</p>
+      {!compact&&<p>Um quadro por mês · 288 meses observados · carregamento em blocos anuais com antecipação dos próximos quadros.</p>}
     </div>
     {error?<div className="monthly-error" role="alert">{error} <button onClick={()=>setRetry(v=>v+1)}>Tentar novamente</button></div>:!manifest?<p role="status">Carregando a grade e as referências mensais…</p>:null}
     {manifest&&<div className="map-layout">
@@ -66,10 +71,7 @@ export function MonthlyRainExplorer() {
           <div className="monthly-legend-labels">{mode==="total"?<><span>0 mm</span><span>≥600 mm/mês</span></>:<><span>≤−50%</span><span>Referência</span><span>≥+50%</span></>}</div>
           <p className="muted">Cinza: valor ou anomalia indisponível. A escala satura nos limites; o painel mostra o valor real.</p>
         </div>
-        <form className="monthly-cell-search" onSubmit={e=>{e.preventDefault();const i=manifest.cells.findIndex(c=>c.id===search.trim());if(i<0)setSearchError("ID não encontrado na grade mensal.");else select(i);}}>
-          <label htmlFor="monthly-cell-id">Selecionar célula pelo ID nativo</label><div><input id="monthly-cell-id" value={search} onChange={e=>setSearch(e.target.value)} placeholder="imerg-monthly-v07:r…:c…"/>
-            <button>Selecionar célula</button></div>{searchError&&<p role="alert">{searchError}</p>}
-        </form>
+        {compact?<details className="monthly-search-wrap"><summary>Buscar célula pelo ID nativo</summary>{searchForm}</details>:searchForm}
       </div>
       <aside className="monthly-panel" aria-label="Leitura mensal">
         <p className="eyebrow">{monthLabel(month)} · PR / SC / RS</p>
@@ -96,6 +98,6 @@ export function MonthlyRainExplorer() {
         </details>
       </aside>
     </div>}
-    <p className="monthly-science-note">Anomalia mensal descreve diferença em relação ao histórico. Não é teste de tendência, previsão de chuva ou avaliação de segurança de uma rota.</p>
+    {!compact&&<p className="monthly-science-note">Anomalia mensal descreve diferença em relação ao histórico. Não é teste de tendência, previsão de chuva ou avaliação de segurança de uma rota.</p>}
   </section>;
 }

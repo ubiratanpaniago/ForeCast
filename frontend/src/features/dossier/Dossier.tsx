@@ -17,6 +17,7 @@ import HistoricalChart from "./components/Charts/HistoricalChart";
 import ProjectionChart from "./components/Charts/ProjectionChart";
 import { MonthlyRainExplorer } from "./components/MonthlyRainExplorer";
 import { useTemporalPlayback } from "./hooks/useTemporalPlayback";
+import "./styles/dossier-layout.css";
 import { YearComparison } from "./components/Dashboard/YearComparison";
 import { DataCoverage } from "./components/Dashboard/DataCoverage";
 import { BlockSelector } from "./components/Dashboard/BlockSelector";
@@ -66,64 +67,73 @@ function Dossier({ data }: { data: Snapshot }) {
   const { bbox } = data.meta;
 
   return (
-    <div className="page">
-      <header className="masthead">
-        <div className="masthead-row">
-          <span className="brand">ForeCast · Dossiê exploratório</span>
-          <span className="mono muted">
-            {snapshotMode === "api"
-              ? "Dados via API"
-              : "Arquivo estático · modo demonstração"}
-          </span>
-          <a href="/grids">Explorador de grades nativas →</a>
-          <a href="/regioes">Investigação regional →</a>
-          <span className="mono muted">
-            Dossiê 01 · BBOX de estudo · {Math.abs(bbox.west)}°–
-            {Math.abs(bbox.east)}°O, {Math.abs(bbox.south)}°–
-            {Math.abs(bbox.north)}°S
-          </span>
+    <div className="dossier">
+      <a className="dossier-skip" href="#dossie-conteudo">Ir para o conteúdo</a>
+      <header className="dossier-topbar">
+        <a href="/" className="dossier-brand" aria-label="ForeCast, voltar ao início">
+          ForeCast<span>.</span>
+        </a>
+        <nav className="dossier-nav" aria-label="Seções">
+          <a href="/entenda" aria-current="page">Dossiê exploratório</a>
+          <span aria-hidden="true">•</span>
+          <span>{snapshotMode === "api" ? "Dados via API" : "Arquivo estático"}</span>
+          <span aria-hidden="true">•</span>
+          <a href="/grids">Explorador de grades nativas</a>
+          <span aria-hidden="true">•</span>
+          <a href="/regioes">Investigação regional</a>
+        </nav>
+        <div className="dossier-actions">
+          <a href="/analise">Estradas</a>
+          <a href="#detalhes">Detalhes</a>
+          <a href="/apoio" className="is-primary">Apoio</a>
         </div>
-        <h1>
-          Vinte e quatro anos de chuva,
-          <br />
-          <em>examinados célula a célula.</em>
-        </h1>
-        <p className="lede">
-          Satélite GPM IMERG, 2001–2024. O ano com menor média de precipitação
-          no recorte terrestre do BBOX foi{" "}
-          <button
-            className="inline-year is-dry"
-            onClick={() => playback.selectYear(extremes.dry)}
-          >
-            {extremes.dry} ({pct(extremes.dryA)})
-          </button>
-          ; o de maior média,{" "}
-          <button
-            className="inline-year is-wet"
-            onClick={() => playback.selectYear(extremes.wet)}
-          >
-            {extremes.wet} ({pct(extremes.wetA)})
-          </button>
-          . Explore os meses no mapa e consulte as comparações anuais abaixo.
-        </p>
       </header>
+      <p className="dossier-bbox mono">
+        BBOX de estudo: {Math.abs(bbox.west)}–{Math.abs(bbox.east)}°O,{" "}
+        {Math.abs(bbox.south)}–{Math.abs(bbox.north)}°S
+      </p>
 
+      <main className="dossier-main" id="dossie-conteudo">
+        <div className="dossier-hero">
+          <h1>Vinte e quatro anos de chuva, examinados célula a célula.</h1>
+          <p>
+            Satélite GPM IMERG, 2001–2024. Menor média:{" "}
+            <button className="inline-year is-dry" onClick={() => playback.selectYear(extremes.dry)}>
+              {extremes.dry} ({pct(extremes.dryA)})
+            </button>
+            . Maior média:{" "}
+            <button className="inline-year is-wet" onClick={() => playback.selectYear(extremes.wet)}>
+              {extremes.wet} ({pct(extremes.wetA)})
+            </button>
+            .
+          </p>
+        </div>
+
+        <div className="dossier-grid">
+          <div className="dossier-col dossier-col--map">
+            <MonthlyRainExplorer compact />
+          </div>
+          <div className="dossier-col dossier-col--compare">
+            <h2 className="dossier-col-title">Dois anos, a mesma referência</h2>
+            <p className="dossier-col-sub">Contexto anual agregado {data.years[0]}–{data.years.at(-1)}</p>
+            <YearStrip data={data} year={year} onSelect={playback.selectYear} />
+            <YearComparison
+              data={data}
+              year={year}
+              onSelectYear={playback.selectYear}
+              block={pinnedIJ}
+            />
+          </div>
+        </div>
+      </main>
+
+      <section className="dossier-details page" id="detalhes" aria-label="Detalhes">
+      <p className="dossier-details-title eyebrow">Detalhes · método, contexto anual e cobertura</p>
       <aside className="scope-notice">
         <strong>Mapa mensal em grade nativa IMERG de 0,1°.</strong> Células com
-        interseção em PR, SC e RS, sem interpolação. As comparações anuais abaixo
-        mantêm o snapshot agregado de 0,2°. Anomalia não é previsão nem risco de inundação.
+        interseção em PR, SC e RS, sem interpolação. As comparações anuais
+        usam o snapshot agregado de 0,2°. Anomalia não é previsão nem risco de inundação.
       </aside>
-      <MonthlyRainExplorer />
-      <section className="timeline" aria-label="Comparações anuais do snapshot agregado">
-        <div className="timeline-head">
-          <span className="eyebrow">
-            Contexto anual agregado · independente do mapa mensal · referência 2001–2024
-          </span>
-          <span className="mono muted">← → para navegar</span>
-        </div>
-        <YearStrip data={data} year={year} onSelect={playback.selectYear} />
-      </section>
-
       <details className="annual-context"><summary>Consultar o mapa anual agregado e a sonda de blocos 0,2°</summary>
       <section className="exhibit exhibit--map">
         <div className="exhibit-head">
@@ -184,12 +194,6 @@ function Dossier({ data }: { data: Snapshot }) {
       </section>
       </details>
 
-      <YearComparison
-        data={data}
-        year={year}
-        onSelectYear={playback.selectYear}
-        block={pinnedIJ}
-      />
       <section className="exhibit">
         <div className="exhibit-head">
           <p className="exhibit-tag">Peça B</p>
@@ -255,6 +259,11 @@ function Dossier({ data }: { data: Snapshot }) {
           snapshot gerado em{" "}
           {new Date(data.meta.generated).toLocaleString("pt-BR")}
         </p>
+      </footer>
+      </section>
+      <footer className="dossier-footer">
+        <span>ForeCast · Paraná, Santa Catarina e Rio Grande do Sul</span>
+        <span>Dados NASA · Informações históricas, sem avaliação de rota segura.</span>
       </footer>
     </div>
   );
