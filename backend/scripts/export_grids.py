@@ -8,11 +8,14 @@ Gera, em frontend/public/data/ (ou --out):
   regions/south-intermediate-regions.geojson                  21 regiões intermediárias do IBGE
   regions/{regionId}/{INDICADOR}/2001-2024.json               série + estatística por região (TrendResult)
 
-Indicadores exportados (os únicos do contrato que os dados baixados permitem calcular):
+Indicadores exportados:
   PRCP_ANNUAL   IMERG mensal  -> soma anual (mm)
   SOIL_SURFACE  GLDAS mensal  -> média anual da umidade 0–10 cm (kg/m²)
   SOIL_ROOT     GLDAS mensal  -> média anual da umidade da zona radicular (kg/m²)
-RX1DAY e R50MM exigem o IMERG diário completo e continuam indisponíveis no catálogo.
+  RX1DAY        IMERG diário  -> maior chuva diária do ano (mm)
+  R50MM         IMERG diário  -> dias do ano com chuva >= 50 mm
+RX1DAY e R50MM só entram no catálogo se o IMERG diário estiver completo (todos os dias de 2001–2024);
+caso contrário a grade diária aparece como indisponível.
 
 Estatística por célula/região (série anual, 24 anos):
   Mann-Kendall + inclinação de Theil-Sen por década + IC 95 % de Sen (Gilbert, 1987).
