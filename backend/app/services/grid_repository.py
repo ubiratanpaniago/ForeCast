@@ -12,13 +12,15 @@ class GridRequestError(Exception):
         self.status, self.code, self.message = status, code, message
 
 
-class GridRepository:
-    def __init__(self, root: Path):
-        self.root = root
+class JsonFileCache:
+    """Lê JSON derivado com cache invalidado por metadados do arquivo (compartilhado por grades e regiões)."""
+
+    def __init__(self, label='Grade'):
+        self.label = label
         self._cache = {}
         self._lock = RLock()
 
-    def _read(self, path):
+    def read(self, path):
         with self._lock:
             try:
                 stat = path.stat()
@@ -33,10 +35,19 @@ class GridRepository:
                 return value
             except OSError:
                 self._cache.pop(path, None)
-                raise DataError('GRID_DATA_UNAVAILABLE', 'Grade ainda não processada ou indisponível.') from None
+                raise DataError('GRID_DATA_UNAVAILABLE', f'{self.label} ainda não processada ou indisponível.') from None
             except (ValueError, TypeError):
                 self._cache.pop(path, None)
-                raise DataError('GRID_DATA_INVALID', 'Arquivo de grade inválido; execute novamente a preparação em uma nova pasta.') from None
+                raise DataError('GRID_DATA_INVALID', f'Arquivo de {self.label.lower()} inválido; execute novamente a preparação em uma nova pasta.') from None
+
+
+class GridRepository:
+    def __init__(self, root: Path):
+        self.root = root
+        self._files = JsonFileCache('Grade')
+
+    def _read(self, path):
+        return self._files.read(path)
 
     def catalog(self):
         catalog = self._read(self.root / 'catalog.json')

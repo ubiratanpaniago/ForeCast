@@ -10,6 +10,9 @@ class Settings:
     snapshot_path: Path
     cors_origins: tuple[str, ...]
     grids_path: Path = BACKEND_ROOT / 'data/derived/grids'
+    regions_path: Path = BACKEND_ROOT / 'data/derived/regions'
+    infrastructure_path: Path = BACKEND_ROOT / 'data/derived/infrastructure'
+    monthly_path: Path = BACKEND_ROOT / 'data/derived/monthly-rainfall'
 
     @classmethod
     def from_env(cls):
@@ -22,4 +25,13 @@ class Settings:
         grids = Path(os.getenv('FORECAST_GRIDS_PATH', 'data/derived/grids'))
         if not grids.is_absolute():
             grids = BACKEND_ROOT / grids
-        return cls(path.resolve(), origins, grids.resolve())
+        regions = Path(os.getenv('FORECAST_REGIONS_PATH', 'data/derived/regions'))
+        if not regions.is_absolute():
+            regions = BACKEND_ROOT / regions
+        infra = Path(os.getenv('FORECAST_INFRASTRUCTURE_PATH', 'data/derived/infrastructure'))
+        if not infra.is_absolute():
+            infra = BACKEND_ROOT / infra
+        monthly = Path(os.getenv('FORECAST_MONTHLY_PATH', 'data/derived/monthly-rainfall'))
+        if not monthly.is_absolute():
+            monthly = BACKEND_ROOT / monthly
+        return cls(path.resolve(), origins, grids.resolve(), regions.resolve(), infra.resolve(), monthly.resolve())
