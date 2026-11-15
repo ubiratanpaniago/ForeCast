@@ -1239,3 +1239,23 @@ h2 {
 .annual-context { border-bottom: 1px solid var(--rule); padding: 15px 0; }
 .monthly-science-note { color: var(--muted); margin-top: 20px; }
 @media(max-width:680px) { .monthly-date { width: 100%; } .monthly-explorer .map-layout { grid-template-columns: 1fr; gap: 20px; } .monthly-explorer .map-frame { padding-left: 30px; } .monthly-cell-search, .monthly-explorer .legend { margin-left: 30px; } .monthly-readings { grid-template-columns: 1fr 1fr; } }
+
+/* Dossiê alinhado ao cabeçalho e à navegação compartilhados do ForeCast. */
+.dossier-shell { min-height: 100vh; }
+.dossier-shell > .site-header { height: auto; min-height: clamp(68px, 9vh, 88px); }
+.dossier-page.page { max-width: 1440px; padding: 0 32px 64px; }
+.dossier-hero { position: relative; padding: 26px 0 18px; border-bottom: 1px solid var(--rule); }
+.dossier-hero h1 { max-width: 1100px; font: 400 clamp(38px, 5vw, 60px)/1.02 var(--serif); letter-spacing: -.02em; margin: 10px 0 10px; text-wrap: balance; }
+.dossier-hero .lede { max-width: 100ch; font-size: 15px; margin: 0; }
+.dossier-bbox { display: block; text-align: right; font: 10px var(--mono); color: var(--muted); }
+.dossier-tools { display: flex; gap: 18px; margin-top: 10px; }
+.dossier-tools a { color: var(--wet); font-size: 12px; text-decoration: underline; text-underline-offset: 3px; }
+.dossier-page .scope-notice { margin-top: 16px; margin-bottom: 20px; }
+.dossier-footer { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 7px 24px; background: var(--ink); color: var(--paper); font-size: 11px; }
+@media(max-width:640px) {
+  .dossier-page.page { padding: 0 16px 42px; }
+  .dossier-hero { padding-top: 20px; }
+  .dossier-hero h1 { font-size: clamp(36px, 10vw, 48px); }
+  .dossier-tools { flex-wrap: wrap; }
+  .dossier-footer { flex-wrap: wrap; }
+}

@@ -11,19 +11,19 @@ function seriesPath(points: HomePoint[], field: "value" | "reference", max: numb
   });
   return path;
 }
-export function HomeHistory({ manifest, cellId, month }: {
-  manifest: MonthlyManifest | null; cellId: string | null; month: string;
+export function HomeHistory({ manifest, cellId, month, location = "local escolhido no mapa" }: {
+  manifest: MonthlyManifest | null; cellId: string | null; month: string; location: string;
 }) {
   const { points, error, retry } = useHomeHistory(manifest, cellId);
   const max = points ? Math.max(1, ...points.flatMap(p => [p.value ?? 0, p.reference ?? 0])) : 1;
   const cursor = points?.findIndex(p => p.t === month) ?? -1;
   return <section className="home-history" aria-labelledby="home-history-title">
     <div className="home-section-heading"><h2 id="home-history-title">Como a chuva mudou</h2><span>2001 a 2024</span></div>
-    <p>{cellId ? "Histórico do ponto escolhido no mapa." : "Histórico das áreas do Sul mostradas no mapa."}</p>
+    <p>{cellId ? `Histórico mensal de chuva em ${location}.` : "Histórico das áreas do Sul mostradas no mapa."}</p>
     {error ? <div className="home-chart-message" role="alert">{error} <button onClick={retry}>Tentar novamente</button></div>
       : !points ? <div className="home-chart-message" role="status">Carregando a história das chuvas…</div>
       : <>
-        <svg className="home-history-chart" viewBox="0 0 700 205" role="img"
+        <svg className="home-history-chart" viewBox="0 0 700 205" preserveAspectRatio="none" role="img"
           aria-label={`Chuva mensal de 2001 a 2024. Linha contínua: chuva registrada. Linha tracejada: média histórica. Escala de zero a ${Math.ceil(max)} milímetros.`}>
           <line x1={28} x2={672} y1={170} y2={170} stroke="var(--rule)" />
           <line x1={28} x2={672} y1={96} y2={96} stroke="var(--rule)" strokeDasharray="3 5" />

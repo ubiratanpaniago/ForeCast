@@ -2,11 +2,12 @@ import { useCallback, useMemo, useState } from 'react';
 import type { MapGeoJSONFeature } from 'maplibre-gl';
 import { useInfrastructure, useRegionGeometry } from '../../hooks/useRegionalTrends';
 import { RegionalMap, type Layers, type Selection } from '../regional/components/RegionalMap';
+import { TopNavigation } from '../../components/TopNavigation';
 import './analysis.css';
 
 const km=(n:number)=>`${Math.round(n).toLocaleString('pt-BR')} km`;
 export default function AnalysisPage(){
-  const [layers,setLayers]=useState<Layers>({roads:true,terrain:false,crossings:false});
+  const [layers,setLayers]=useState<Layers>({roads:true,terrain:true,crossings:true});
   const [selection,setSelection]=useState<Selection>(null);
   const infra=useInfrastructure(layers),regions=useRegionGeometry();
   const roads=infra.roads.status==='ready'?infra.roads.data:null;
@@ -29,13 +30,10 @@ export default function AnalysisPage(){
     terrain:(infra.terrain.status==='ready'?infra.terrain.data:null) as unknown as GeoJSON.FeatureCollection|null,
   }),[roads,crossings,infra.terrain]);
   return <div className="analysis-page">
-    <header className="analysis-header"><a href="/" className="analysis-brand">ForeCast<span>.</span><small>Chuva, história e cuidado.</small></a>
-      <div className="analysis-title"><span>ANÁLISE DO SUL DO BRASIL</span><h1>Chuva e estradas</h1></div>
-      <a href="/" className="analysis-home">← Início</a>
-    </header>
+    <TopNavigation page="analysis" title="Chuva e estradas" subtitle="Veja as estradas e os pontos que merecem investigação." />
     <main className="analysis-main">
       <section className="analysis-map-area" aria-label="Mapa e camadas">
-        <div className="analysis-map-heading"><div><h2>O que existe na sua região?</h2><p>Escolha o que quer ver no mapa.</p></div><div className="analysis-switches" role="group" aria-label="Camadas do mapa">
+        <div className="analysis-map-heading"><div><h2>O que existe na sua região?</h2><p>Linhas mostram estradas mapeadas; círculos mostram pontos para investigar.</p></div><div className="analysis-switches" role="group" aria-label="Camadas do mapa">
           {([['roads','Estradas'],['terrain','Relevo'],['crossings','Pontos para investigar']] as const).map(([key,label])=><button key={key} aria-pressed={layers[key]} onClick={()=>toggle(key)}>{label}<span aria-hidden="true">{layers[key]?'✓':'＋'}</span></button>)}
         </div></div>
         <div className="analysis-map-frame"><RegionalMap regions={regions.status==='ready'?regions.data:null} regionColor={color} colorKey="none" terrain={layersData.terrain} roads={layersData.roads} crossings={layersData.crossings} layers={layers} selection={selection} onSelect={setSelection} tooltip={tooltip}/></div>
@@ -54,7 +52,7 @@ export default function AnalysisPage(){
           {infra.catalog.status==='loading'?<p className="analysis-loading">Carregando informações das estradas…</p>:infra.catalog.status==='error'?<p className="analysis-warning">Não conseguimos carregar os dados das estradas. Confira se o serviço de dados está disponível.</p>:totals&&<>
             <p className="analysis-big"><strong>{totals.segments.toLocaleString('pt-BR')}</strong><span>trechos de estrada no mapa</span></p>
             <div className="analysis-facts"><div><span>Extensão mapeada</span><strong>{km(totals.lengthKm)}</strong></div><div><span>Pontos que pedem investigação</span><strong>{totals.crossings.toLocaleString('pt-BR')}</strong></div></div>
-            <p className="analysis-explain">Os pontos aparecem onde uma estrada cruza uma área de relevo que pode favorecer acúmulo de água. Eles servem para orientar uma investigação.</p>
+            <p className="analysis-explain">As linhas marcam estradas registradas no OpenStreetMap. Os círculos mostram cruzamentos com áreas de relevo que podem favorecer o acúmulo de água. São locais para investigar, não alagamentos confirmados.</p>
           </>}
           <div className="analysis-important"><span aria-hidden="true">i</span><p><strong>O que este mapa não confirma</strong>Ele não mostra alagamentos acontecendo, bloqueios de estrada nem rotas seguras.</p></div>
           <div className="analysis-help"><strong>Como explorar</strong><p>Ative “Relevo” para ver as áreas estudadas. Ative “Pontos para investigar” e selecione um trecho da estrada para conhecer os dados.</p></div>
