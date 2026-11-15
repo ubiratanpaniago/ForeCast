@@ -6,6 +6,7 @@ import { monthlyAnomaly } from '../dossier/services/monthlyApi';
 import { EXAMPLE_CELL_ID, placeName, rainDescription } from '../simple-home/homeData';
 import { getRegionGeometry } from '../../services/regionApi';
 import type { RegionsGeoJSON } from '../../types/geography';
+import { TopNavigation } from '../../components/TopNavigation';
 import './support.css';
 
 const format=(n:number|null)=>n===null?'Sem dados':`${n.toLocaleString('pt-BR',{maximumFractionDigits:0})} mm`;
@@ -39,11 +40,7 @@ export default function SupportPage({calculatedPoints=null}:{calculatedPoints?:S
   const phone=phoneHref(point?.phone??null);
   return <div className="support-page support-reference">
     <a className="support-skip" href="#support-content">Ir para o conteúdo</a>
-    <header className="support-header">
-      <a href="/" className="support-brand" aria-label="ForeCast, voltar ao início">ForeCast<span>.</span><small>Chuva, história e cuidado.</small></a>
-      <div className="support-heading"><h1>Como encontrar apoio na sua região</h1><a href="/">← Voltar ao início</a></div>
-      <a href="/" aria-label="Voltar ao menu principal" className="support-current">Menu <span aria-hidden="true">↖</span></a>
-    </header>
+    <TopNavigation page="support" title="Como encontrar apoio na sua região" />
     <main className="support-body" id="support-content">
       <section className="support-map-panel" aria-label="Mapa do Sul do Brasil">
         {error?<div className="support-map-message" role="alert"><p>Não conseguimos carregar o mapa.</p><button onClick={()=>setRetry(v=>v+1)}>Tentar novamente</button></div>

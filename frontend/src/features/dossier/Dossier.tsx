@@ -1,261 +1,113 @@
-import { useMemo, useState } from "react";
-import type { MapMode, SeriesKey, Snapshot } from "./types/climate";
-import {
-  anomalyPct,
-  readCell,
-  useGridLand,
-  useSnapshot,
-  useYearSummary,
-} from "./hooks/useRegionData";
-import { pct } from "./lib/format";
-import ClimateMap from "./components/Map/ClimateMap";
-import { Legend } from "./components/Map/MapLayers";
-import RegionPanel from "./components/Dashboard/RegionPanel";
-import YearStrip from "./components/Dashboard/YearStrip";
-import ForecastCard from "./components/Dashboard/ForecastCard";
-import HistoricalChart from "./components/Charts/HistoricalChart";
-import ProjectionChart from "./components/Charts/ProjectionChart";
-import { MonthlyRainExplorer } from "./components/MonthlyRainExplorer";
-import { useTemporalPlayback } from "./hooks/useTemporalPlayback";
-import { YearComparison } from "./components/Dashboard/YearComparison";
-import { DataCoverage } from "./components/Dashboard/DataCoverage";
-import { BlockSelector } from "./components/Dashboard/BlockSelector";
-import { snapshotMode } from "./services/api";
+import { useEffect, useMemo, useState } from "react";
+import { TopNavigation } from "../../components/TopNavigation";
+import { EXAMPLE_CELL_ID } from "../simple-home/homeData";
+import { useHomeHistory } from "../simple-home/useHomeHistory";
+import { MonthlyRainMap } from "./components/MonthlyRainMap";
+import { useMonthlyRainfall } from "./hooks/useMonthlyRainfall";
+import { useMonthlyPlayback } from "./hooks/useMonthlyPlayback";
+import { monthLabel, monthlyAnomaly } from "./services/monthlyApi";
+import "./styles/dossier.css";
 
-export default function App() {
-  const state = useSnapshot();
-  if (state.status === "loading")
-    return <div className="status">Abrindo o dossiê…</div>;
-  if (state.status === "error")
-    return (
-      <div className="status status--error">
-        <p className="eyebrow">Evidência ausente</p>
-        <p>{state.error}</p>
-        <button onClick={state.retry}>Tentar novamente</button>
-      </div>
-    );
-  return <Dossier data={state.data} />;
-}
+const EMPTY_MONTHS: string[] = [];
+const YEARS = Array.from({ length: 24 }, (_, i) => 2001 + i);
+const MONTHS = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
+const format = (value: number | null, unit = "mm") => value === null ? "Sem dados" : `${value.toLocaleString("pt-BR", { maximumFractionDigits: 0 })} ${unit}`;
+const percent = (value: number | null) => value === null ? "Indisponível" : `${value > 0 ? "+" : ""}${value.toLocaleString("pt-BR", { maximumFractionDigits: 1 })}%`;
+const completeTotal = (values: Array<number | null>) => values.length === 12 && values.every(v => v !== null) ? values.reduce<number>((sum, v) => sum + v!, 0) : null;
 
-function Dossier({ data }: { data: Snapshot }) {
-  const land = useGridLand(data);
-  const [year, setYear] = useState(data.years[data.years.length - 1]);
-  const playback = useTemporalPlayback(data.years, year, setYear);
-  const [mode, setMode] = useState<MapMode>("anomaly");
-  const [series, setSeries] = useState<SeriesKey>("precipitation");
-  const [pinnedIJ, setPinnedIJ] = useState<[number, number] | null>(null);
-  const [hoverIJ, setHoverIJ] = useState<[number, number] | null>(null);
-  const summary = useYearSummary(data, year);
-  const activeIJ = hoverIJ ?? pinnedIJ;
-  const cell = activeIJ
-    ? readCell(data, land, year, activeIJ[0], activeIJ[1])
-    : null;
+export default function Dossier() {
+  const [month, setMonth] = useState("2001-01");
+  const [cellId, setCellId] = useState(EXAMPLE_CELL_ID);
+  const [mode, setMode] = useState<"total" | "anomaly">("anomaly");
+  const [year, setYear] = useState(2024);
+  const [comparison, setComparison] = useState(2001);
+  const [retry, setRetry] = useState(0);
+  const { manifest, frame, error } = useMonthlyRainfall(month, retry);
+  const playback = useMonthlyPlayback(manifest?.months ?? EMPTY_MONTHS, month, !!frame && !error, setMonth);
+  const { pause } = playback;
+  useEffect(() => { if (error) pause(); }, [error, pause]);
+  const selectedIndex = manifest?.cells.findIndex(c => c.id === cellId) ?? -1;
+  const selected = selectedIndex >= 0 ? selectedIndex : null;
+  const cell = manifest && selected !== null ? manifest.cells[selected] : null;
+  const lat = manifest && cell ? manifest.grid.lat[Math.floor(cell.index / manifest.grid.lon.length)] : null;
+  const lon = manifest && cell ? manifest.grid.lon[cell.index % manifest.grid.lon.length] : null;
+  const coordinates = lat !== null && lon !== null ? `${Math.abs(lat).toFixed(2).replace(".", ",")}° S · ${Math.abs(lon).toFixed(2).replace(".", ",")}° O` : "Localizando célula…";
+  const { points, error: historyError, retry: retryHistory } = useHomeHistory(selected !== null ? manifest : null, cellId);
+  const annual = useMemo(() => YEARS.map(y => {
+    const series = points?.filter(p => p.t.startsWith(String(y))) ?? [];
+    return { year: y, total: completeTotal(series.map(p => p.value)), reference: completeTotal(series.map(p => p.reference)), values: series.map(p => p.value) };
+  }), [points]);
+  const current = annual.find(a => a.year === year)!;
+  const previous = annual.find(a => a.year === comparison)!;
+  const difference = current.total !== null && previous.total !== null ? current.total - previous.total : null;
+  const chartMax = Math.max(1, ...current.values.map(v => v ?? 0), ...previous.values.map(v => v ?? 0));
+  const validYears = annual.filter(a => a.total !== null);
+  const driest = validYears.reduce<typeof current | null>((a, b) => !a || b.total! < a.total! ? b : a, null);
+  const wettest = validYears.reduce<typeof current | null>((a, b) => !a || b.total! > a.total! ? b : a, null);
+  const value = frame && selected !== null && !error ? frame.values[selected] : null;
+  const reference = manifest && selected !== null ? manifest.climatology[month.slice(5, 7)][selected] : null;
+  const monthIndex = manifest?.months.indexOf(month) ?? 0;
+  const chooseMonth = (t: string) => { if (manifest?.months.includes(t)) playback.select(t); };
 
-  const extremes = useMemo(() => {
-    const { regional, regionalClimatology } = data.annual;
-    const sorted = [...data.years].sort((a, b) => regional[a] - regional[b]);
-    const a = (y: number) => anomalyPct(regional[y], regionalClimatology);
-    return {
-      dry: sorted[0],
-      wet: sorted[sorted.length - 1],
-      dryA: a(sorted[0]),
-      wetA: a(sorted[sorted.length - 1]),
-    };
-  }, [data]);
-
-  const { bbox } = data.meta;
-
-  return (
-    <div className="page">
-      <header className="masthead">
-        <div className="masthead-row">
-          <span className="brand">ForeCast · Dossiê exploratório</span>
-          <span className="mono muted">
-            {snapshotMode === "api"
-              ? "Dados via API"
-              : "Arquivo estático · modo demonstração"}
-          </span>
-          <a href="/grids">Explorador de grades nativas →</a>
-          <a href="/regioes">Investigação regional →</a>
-          <span className="mono muted">
-            Dossiê 01 · BBOX de estudo · {Math.abs(bbox.west)}°–
-            {Math.abs(bbox.east)}°O, {Math.abs(bbox.south)}°–
-            {Math.abs(bbox.north)}°S
-          </span>
+  return <div className="dossier-board">
+    <TopNavigation page="dossier" title="Dossiê exploratório" subtitle="Dados via API · Chuva e anomalias por célula" />
+    <header className="dossier-intro">
+      <span className="dossier-study">GPM IMERG V07 · 0,1° · 2001–2024</span>
+      <h1>Vinte e quatro anos de chuva, examinados célula a célula.</h1>
+      <p><strong>Célula selecionada: {coordinates}.</strong> {driest && wettest ? `Menor total anual: ${driest.year} (${format(driest.total)}). Maior: ${wettest.year} (${format(wettest.total)}).` : "Escolha um ponto no mapa para conhecer sua história de chuva."}</p>
+    </header>
+    <main className="dossier-workspace">
+      <section className="dossier-monthly" aria-labelledby="dossier-map-title">
+        <div className="dossier-map-heading"><h2 id="dossier-map-title">Onde choveu mais ou menos · {monthLabel(month)}</h2>
+          <div className="dossier-modes" role="group" aria-label="Exibição do mapa">
+            <button aria-pressed={mode === "anomaly"} onClick={() => setMode("anomaly")}>Mais ou menos chuva</button>
+            <button aria-pressed={mode === "total"} onClick={() => setMode("total")}>Total em mm</button>
+          </div>
         </div>
-        <h1>
-          Vinte e quatro anos de chuva,
-          <br />
-          <em>examinados célula a célula.</em>
-        </h1>
-        <p className="lede">
-          Satélite GPM IMERG, 2001–2024. O ano com menor média de precipitação
-          no recorte terrestre do BBOX foi{" "}
-          <button
-            className="inline-year is-dry"
-            onClick={() => playback.selectYear(extremes.dry)}
-          >
-            {extremes.dry} ({pct(extremes.dryA)})
-          </button>
-          ; o de maior média,{" "}
-          <button
-            className="inline-year is-wet"
-            onClick={() => playback.selectYear(extremes.wet)}
-          >
-            {extremes.wet} ({pct(extremes.wetA)})
-          </button>
-          . Explore os meses no mapa e consulte as comparações anuais abaixo.
-        </p>
-      </header>
-
-      <aside className="scope-notice">
-        <strong>Mapa mensal em grade nativa IMERG de 0,1°.</strong> Células com
-        interseção em PR, SC e RS, sem interpolação. As comparações anuais abaixo
-        mantêm o snapshot agregado de 0,2°. Anomalia não é previsão nem risco de inundação.
-      </aside>
-      <MonthlyRainExplorer />
-      <section className="timeline" aria-label="Comparações anuais do snapshot agregado">
-        <div className="timeline-head">
-          <span className="eyebrow">
-            Contexto anual agregado · independente do mapa mensal · referência 2001–2024
-          </span>
-          <span className="mono muted">← → para navegar</span>
+        <div className="dossier-player" role="group" aria-label="Animação mensal">
+          <button className="dossier-play" onClick={playback.toggle} disabled={!frame || !!error} aria-pressed={playback.playing}>{playback.playing ? "Ⅱ Pausar" : "▶ Reproduzir"}</button>
+          <button aria-label="Mês anterior" disabled={!manifest || monthIndex <= 0} onClick={() => chooseMonth(manifest!.months[monthIndex - 1])}>‹</button>
+          <output>{monthLabel(month)}</output>
+          <button aria-label="Próximo mês" disabled={!manifest || monthIndex >= 287} onClick={() => chooseMonth(manifest!.months[monthIndex + 1])}>›</button>
+          <label>Velocidade <select value={playback.speed} onChange={e => playback.setSpeed(Number(e.target.value))}><option value={.5}>0,5×</option><option value={1}>1×</option><option value={2}>2×</option></select></label>
+          <input type="month" aria-label="Ir para o mês" min="2001-01" max="2024-12" value={month} disabled={!manifest} onChange={e => chooseMonth(e.target.value)} />
         </div>
-        <YearStrip data={data} year={year} onSelect={playback.selectYear} />
+        <div className="dossier-slider"><span>jan/2001</span><input type="range" aria-label="Mês do mapa" aria-valuetext={monthLabel(month)} min={0} max={287} value={monthIndex} disabled={!manifest} onChange={e => chooseMonth(manifest!.months[Number(e.target.value)])} /><span>dez/2024</span></div>
+        <div className="dossier-map-reading">
+          <div className="dossier-map-box">{manifest ? <MonthlyRainMap manifest={manifest} values={error ? null : frame?.values ?? null} month={month} mode={mode} selected={selected} onSelect={i => setCellId(manifest.cells[i].id)} /> : <p role="status">Carregando mapa…</p>}</div>
+          <aside className="dossier-reading" aria-label="Dados da célula">
+            <h3>Chuva neste ponto</h3><p>{monthLabel(month)}</p><strong className="dossier-mm">{format(value)}</strong>
+            <dl><dt>Média deste mês</dt><dd>{format(reference)}</dd><dt>Diferença da média</dt><dd>{percent(monthlyAnomaly(value, reference))}</dd><dt>Referência disponível</dt><dd>{manifest && selected !== null ? `${manifest.referenceCounts[month.slice(5, 7)][selected]}/24 anos` : "—"}</dd></dl>
+            <p className="dossier-coordinate">{coordinates}<br />Célula de 0,1°</p>
+            <p>Clique no mapa para mudar o local. Toda a análise acompanha a célula.</p>
+            {cellId !== EXAMPLE_CELL_ID && <button onClick={() => setCellId(EXAMPLE_CELL_ID)}>Voltar ao exemplo</button>}
+            {manifest && selected === null && <p role="alert">Célula indisponível nesta grade. Escolha outra no mapa.</p>}
+          </aside>
+        </div>
+        <div className="dossier-map-legend">{mode === "anomaly" ? <><span><i className="dry" />Menos chuva</span><span><i className="normal" />Perto da média</span><span><i className="wet" />Mais chuva</span></> : <><span>0 mm</span><i className="rain-scale" /><span>≥600 mm/mês</span></>}</div>
+        <p className="dossier-map-note">{mode === "anomaly" ? "Janeiro é comparado aos janeiros de 2001–2024, e assim por diante." : "Chuva acumulada em cada mês. A escala satura em 600 mm."} Cinza: sem dados.</p>
+        {error && <p className="dossier-error" role="alert">{error} <button onClick={() => setRetry(v => v + 1)}>Tentar novamente</button></p>}
       </section>
-
-      <details className="annual-context"><summary>Consultar o mapa anual agregado e a sonda de blocos 0,2°</summary>
-      <section className="exhibit exhibit--map">
-        <div className="exhibit-head">
-          <p className="exhibit-tag">Contexto anual</p>
-          <h2>
-            {mode === "anomaly" ? "Anomalia" : "Total"} de precipitação,{" "}
-            <span className="year-mark">{year}</span>
-          </h2>
-          <div className="seg" role="tablist" aria-label="Modo do mapa">
-            <button
-              role="tab"
-              aria-selected={mode === "anomaly"}
-              className="seg-btn"
-              onClick={() => setMode("anomaly")}
-            >
-              Anomalia %
-            </button>
-            <button
-              role="tab"
-              aria-selected={mode === "total"}
-              className="seg-btn"
-              onClick={() => setMode("total")}
-            >
-              Total mm
-            </button>
-          </div>
+      <section className="dossier-comparison" aria-labelledby="dossier-compare-title">
+        <h2 id="dossier-compare-title">Dois anos, a mesma referência</h2><p className="dossier-comparison-note">Totais anuais da célula · referência 2001–2024</p>
+        <div className="dossier-years" role="group" aria-label="Escolher ano em análise">{annual.map(a => {
+          const anomaly = monthlyAnomaly(a.total, a.reference);
+          return <button key={a.year} onClick={() => setYear(a.year)} aria-pressed={year === a.year} aria-label={`${a.year}: ${format(a.total)}, diferença da média ${percent(anomaly)}`}><span className="dossier-year-track"><i style={{ height: `${anomaly === null ? 0 : Math.min(Math.abs(anomaly), 60) / 60 * 48}%`, top: anomaly !== null && anomaly >= 0 ? "auto" : "50%", bottom: anomaly !== null && anomaly >= 0 ? "50%" : "auto", background: anomaly !== null && anomaly >= 0 ? "var(--wet)" : "var(--dry)" }} /></span><small>{String(a.year).slice(2)}</small></button>;
+        })}</div>
+        <div className="dossier-year-filters"><label>Ano em análise<select value={year} onChange={e => setYear(Number(e.target.value))}>{YEARS.map(y => <option key={y}>{y}</option>)}</select></label><label>Ano de comparação<select value={comparison} onChange={e => setComparison(Number(e.target.value))}>{YEARS.map(y => <option key={y}>{y}</option>)}</select></label></div>
+        <div className="dossier-totals">
+          <div><span>{year} · total anual</span><strong>{format(current.total)}</strong><small>Diferença da média: {percent(monthlyAnomaly(current.total, current.reference))}</small></div>
+          <div><span>{comparison} · total anual</span><strong>{format(previous.total)}</strong><small>Diferença da média: {percent(monthlyAnomaly(previous.total, previous.reference))}</small></div>
+          <div><span>{year} menos {comparison}</span><strong>{difference !== null && difference > 0 ? "+" : ""}{format(difference)}</strong><small>{percent(monthlyAnomaly(current.total, previous.total))} em relação a {comparison}</small></div>
         </div>
-        <div className="map-layout">
-          <div>
-            <ClimateMap
-              data={data}
-              land={land}
-              year={year}
-              mode={mode}
-              hovered={cell}
-              onHover={setHoverIJ}
-              onSelect={(ij) => {
-                setPinnedIJ(ij);
-                setHoverIJ(null);
-              }}
-            />
-            <BlockSelector
-              data={data}
-              selected={pinnedIJ}
-              onSelect={(ij) => {
-                setPinnedIJ(ij);
-                setHoverIJ(null);
-              }}
-              onClear={() => {
-                setPinnedIJ(null);
-                setHoverIJ(null);
-              }}
-            />
-            <Legend mode={mode} />
-          </div>
-          <RegionPanel data={data} summary={summary} cell={cell} />
+        <div className="dossier-chart-key"><span><i />{year}</span><span><i />{comparison}</span><span>Chuva mensal · mm · mesma escala</span></div>
+        <div className="dossier-bars" role="img" aria-label={`Comparação da precipitação mensal da célula em ${year} e ${comparison}. Escala de zero a ${Math.ceil(chartMax)} milímetros. Valores disponíveis em cada barra.`}>
+          <span className="dossier-chart-max">{Math.ceil(chartMax)} mm</span>
+          {MONTHS.map((label, i) => <div className="dossier-month-bars" key={label}><div className="dossier-bar-pair">{[current, previous].map((a, j) => { const v = a.values[i] ?? null; return <span key={j} className={`dossier-bar dossier-bar-${j}`} style={{ height: `${v === null ? 0 : v / chartMax * 100}%` }} tabIndex={0} aria-label={`${label}/${a.year}: ${format(v)}`}><span className="dossier-bar-tip">{label}/{a.year}: {format(v)}</span></span>; })}</div><small>{label}</small></div>)}
         </div>
+        {historyError ? <p className="dossier-error" role="alert">{historyError} <button onClick={retryHistory}>Tentar novamente</button></p> : !points ? <p role="status">Carregando a série da célula…</p> : <p className="dossier-completeness">Total anual apenas com os 12 meses válidos. Valores ausentes não são tratados como zero.</p>}
       </section>
-      </details>
-
-      <YearComparison
-        data={data}
-        year={year}
-        onSelectYear={playback.selectYear}
-        block={pinnedIJ}
-      />
-      <section className="exhibit">
-        <div className="exhibit-head">
-          <p className="exhibit-tag">Peça B</p>
-          <h2>Série mensal do recorte terrestre do BBOX</h2>
-          <p className="exhibit-aside muted">
-            Clique no gráfico para ir ao ano.
-          </p>
-        </div>
-        <HistoricalChart
-          data={data}
-          series={series}
-          onSeriesChange={setSeries}
-          year={year}
-          onSelectYear={playback.selectYear}
-        />
-      </section>
-
-      <DataCoverage data={data} />
-      <div className="pending-row">
-        <section className="exhibit">
-          <div className="exhibit-head">
-            <p className="exhibit-tag">Peça C</p>
-            <h2>Extremos históricos</h2>
-          </div>
-          <ForecastCard />
-        </section>
-
-        <section className="exhibit">
-          <div className="exhibit-head">
-            <p className="exhibit-tag">Peça D</p>
-            <h2>Tendências estatísticas</h2>
-          </div>
-          <ProjectionChart />
-        </section>
-      </div>
-
-      <footer className="colophon">
-        <div>
-          <p className="eyebrow">Fontes</p>
-          <ul>
-            {data.meta.sources.map((s) => (
-              <li key={s.key}>
-                <span className="mono">{s.product}</span> — {s.variable} (
-                {s.unit})
-              </li>
-            ))}
-          </ul>
-        </div>
-        <div>
-          <p className="eyebrow">Ressalvas</p>
-          <ul>
-            {data.meta.notes.map((n) => (
-              <li key={n}>{n}</li>
-            ))}
-            <li>
-              No contexto anual: médias espaciais de totais anuais em blocos de 0,2° (2×2
-              da grade nativa IMERG). A sonda não representa uma célula nativa;
-              máscara GLDAS não é linha da costa oficial.
-            </li>
-          </ul>
-        </div>
-        <p className="mono muted colophon-stamp">
-          snapshot gerado em{" "}
-          {new Date(data.meta.generated).toLocaleString("pt-BR")}
-        </p>
-      </footer>
-    </div>
-  );
+    </main>
+    <footer className="dossier-board-footer"><span>ForeCast · {coordinates} · IMERG V07</span><span>Dados históricos · Anomalia não é previsão ou alerta de inundação.</span></footer>
+  </div>;
 }
