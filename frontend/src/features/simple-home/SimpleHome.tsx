@@ -2,15 +2,12 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { RegionsGeoJSON } from "../../types/geography";
 import { getRegionGeometry } from "../../services/regionApi";
 import { MonthlyRainMap } from "../dossier/components/MonthlyRainMap";
-import { useMonthlyPlayback } from "../dossier/hooks/useMonthlyPlayback";
 import { useMonthlyRainfall } from "../dossier/hooks/useMonthlyRainfall";
 import { monthlyAnomaly } from "../dossier/services/monthlyApi";
 import { HomeHistory } from "./HomeHistory";
-import { fullMonth, placeName, rainDescription, rainSummary } from "./homeData";
+import { EXAMPLE_CELL_ID, fullMonth, placeName, rainDescription } from "./homeData";
 import "./simple-home.css";
 
-const EMPTY_MONTHS: string[] = [];
-const MONTHS = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
 const mm = (value: number | null) => value === null ? "Sem dados" : `${value.toLocaleString("pt-BR", { maximumFractionDigits: 0 })} mm`;
 
 function RainBar({ label, value, maximum, kind }: {
@@ -25,8 +22,8 @@ function RainBar({ label, value, maximum, kind }: {
 }
 
 export default function SimpleHome() {
-  const [month, setMonth] = useState("2024-12");
-  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const month = "2024-12";
+  const [selectedId, setSelectedId] = useState(EXAMPLE_CELL_ID);
   const [retry, setRetry] = useState(0);
   const [regions, setRegions] = useState<RegionsGeoJSON | null>(null);
   const [supportOpen, setSupportOpen] = useState(false);
@@ -34,9 +31,6 @@ export default function SimpleHome() {
   const supportButton = useRef<HTMLButtonElement>(null);
   const { manifest, frame, error } = useMonthlyRainfall(month, retry);
   const ready = !!frame && !error;
-  const playback = useMonthlyPlayback(manifest?.months ?? EMPTY_MONTHS, month, ready, setMonth);
-  const { pause } = playback;
-  useEffect(() => { if (error) pause(); }, [error, pause]);
   useEffect(() => {
     let active = true;
     void getRegionGeometry().then(data => { if (active) setRegions(data); }).catch(() => {});
@@ -54,25 +48,26 @@ export default function SimpleHome() {
   const summary = useMemo(() => {
     if (!frame || !reference) return { value: null, reference: null, count: 0 };
     if (selected !== null) return { value: frame.values[selected], reference: reference[selected], count: 1 };
-    return rainSummary(frame.values, reference);
+    return { value: null, reference: null, count: 0 };
   }, [frame, reference, selected]);
   const location = useMemo(() => {
-    if (!manifest || selected === null) return "Sul do Brasil";
+    if (!manifest || selected === null) return "Exemplo no Sul do Brasil";
     const index = manifest.cells[selected].index;
     return placeName(regions, manifest.grid.lon[index % manifest.grid.lon.length], manifest.grid.lat[Math.floor(index / manifest.grid.lon.length)]);
   }, [manifest, selected, regions]);
   const anomaly = ready ? monthlyAnomaly(summary.value, summary.reference) : null;
-  const index = manifest?.months.indexOf(month) ?? 0;
   const maximum = Math.max(summary.value ?? 0, summary.reference ?? 0, 1);
-  const choose = (value: string) => { if (manifest?.months.includes(value)) playback.select(value); };
-  const changePoint = (i: number) => { if (manifest) { pause(); setSelectedId(manifest.cells[i].id); } };
+  const changePoint = (i: number) => { if (manifest) setSelectedId(manifest.cells[i].id); };
+  const point = manifest && selected !== null ? manifest.cells[selected].index : null;
+  const latitude = point !== null && manifest ? manifest.grid.lat[Math.floor(point / manifest.grid.lon.length)] : null;
+  const longitude = point !== null && manifest ? manifest.grid.lon[point % manifest.grid.lon.length] : null;
 
   return <div className="simple-home">
     <a className="home-skip" href="#home-main">Ir para o conteúdo</a>
     <header className="home-header">
       <a className="home-brand" href="/" aria-label="ForeCast, página principal"><span>ForeCast<span className="home-brand-dot">.</span></span><small>Chuva, história e cuidado.</small></a>
       <div className="home-header-copy"><h1>As chuvas na sua região</h1><p>Veja o mapa. Escolha um lugar. Entenda as mudanças.</p></div>
-      <button ref={supportButton} className="home-support" onClick={() => { pause(); setSupportOpen(true); }} aria-haspopup="dialog">
+      <button ref={supportButton} className="home-support" onClick={() => setSupportOpen(true)} aria-haspopup="dialog">
         <span className="home-support-icon" aria-hidden="true">＋</span><span>Apoio<small>Informações e orientação</small></span><span aria-hidden="true">↗</span>
       </button>
     </header>
@@ -80,6 +75,7 @@ export default function SimpleHome() {
       <section className="home-map-column" aria-labelledby="home-map-title">
         <div className="home-map-heading"><h2 id="home-map-title">Onde choveu mais ou menos</h2>
           <p>Clique em um lugar para ver os dados ao lado.</p></div>
+        <div className="home-static-date"><span>Dados históricos</span><strong>{fullMonth(month)}</strong></div>
         {error ? <div className="home-data-message" role="alert"><h3>Não conseguimos carregar as chuvas.</h3><p>Tente novamente para ver o mapa.</p><button onClick={() => setRetry(v => v + 1)}>Tentar novamente</button></div>
           : !manifest ? <div className="home-data-message" role="status">Carregando o mapa de chuvas…</div>
           : <MonthlyRainMap manifest={manifest} values={ready ? frame!.values : null} month={month} mode="anomaly" selected={selected} onSelect={changePoint} />}
@@ -87,41 +83,25 @@ export default function SimpleHome() {
           <span><i className="home-dry-swatch" /> Menos chuva</span><span><i className="home-normal-swatch" /> Perto da média</span><span><i className="home-wet-swatch" /> Mais chuva</span>
         </div>
         <p className="home-map-key-note">Comparação com o mesmo mês de outros anos. Cinza: sem dados para mostrar.</p>
-        <section className="home-time" aria-label="Escolher mês e reproduzir as chuvas">
-          <div className="home-time-top"><span className="home-step">DADOS HISTÓRICOS</span><output aria-label="Mês do mapa">{fullMonth(month)}</output></div>
-          <div className="home-date-selects">
-            <label>Mês<select aria-label="Mês da chuva" value={month.slice(5, 7)} disabled={!manifest}
-              onChange={e => choose(`${month.slice(0, 4)}-${e.target.value}`)}>{MONTHS.map((m, i) => <option key={m} value={String(i + 1).padStart(2, "0")}>{m}</option>)}</select></label>
-            <label>Ano<select aria-label="Ano da chuva" value={month.slice(0, 4)} disabled={!manifest}
-              onChange={e => choose(`${e.target.value}-${month.slice(5, 7)}`)}>{Array.from({ length: 24 }, (_, i) => <option key={2001 + i}>{2001 + i}</option>)}</select></label>
-          </div>
-          <div className="home-play-controls">
-            <button disabled={!manifest || index <= 0} onClick={() => playback.select(manifest!.months[index - 1])} aria-label="Mês anterior"><span aria-hidden="true">←</span> Anterior</button>
-            <button className="home-play" disabled={!ready} onClick={playback.toggle} aria-pressed={playback.playing}><span aria-hidden="true">{playback.playing ? "Ⅱ" : "▶"}</span> {playback.playing ? "Pausar" : "Reproduzir"}</button>
-            <button disabled={!manifest || index >= manifest.months.length - 1} onClick={() => playback.select(manifest!.months[index + 1])} aria-label="Próximo mês">Próximo <span aria-hidden="true">→</span></button>
-          </div>
-          <input className="home-time-range" type="range" aria-label="Percorrer os meses do histórico" min={0} max={287} value={index}
-            aria-valuetext={fullMonth(month)} disabled={!manifest} onChange={e => playback.select(manifest!.months[Number(e.target.value)])}/>
-          <div className="home-time-endpoints"><span>2001</span><span>2024</span></div>
-          <p>Este mapa mostra o passado. Não é a chuva de hoje nem uma previsão.</p>
-        </section>
+        <p className="home-static-note">Este mapa mostra o passado. Para explorar outros meses, clique em “Entenda”.</p>
       </section>
       <div className="home-reading-column">
         <section className="home-summary" aria-labelledby="home-summary-title">
           <div className="home-section-heading"><h2 id="home-summary-title">Chuva na região escolhida</h2></div>
           <div className="home-place"><span className="home-place-dot" aria-hidden="true"/><strong>{location}</strong>
-            {selected !== null && <button onClick={() => { pause(); setSelectedId(null); }}>Ver todo o Sul</button>}</div>
-          <p className="home-place-note">{selected === null ? "Média das áreas mostradas no mapa." : "Dados do ponto aproximado que você escolheu."}</p>
+            {selectedId !== EXAMPLE_CELL_ID && <button onClick={() => setSelectedId(EXAMPLE_CELL_ID)}>Voltar ao exemplo</button>}</div>
+          <p className="home-place-note">{selectedId === EXAMPLE_CELL_ID ? "Localização de exemplo. Não é a sua localização atual." : "Dados do ponto aproximado que você escolheu."}</p>
+          {latitude !== null && longitude !== null && <p className="home-coordinate">Coordenada: {Math.abs(latitude).toLocaleString("pt-BR", {maximumFractionDigits:2})}° S · {Math.abs(longitude).toLocaleString("pt-BR", {maximumFractionDigits:2})}° O</p>}
           <p className={`home-comparison ${anomaly !== null && anomaly < 0 ? "drier" : "wetter"}`} aria-live="polite">
             {!ready ? "Aguardando os dados do mês…" : rainDescription(anomaly)}</p>
           <div className="home-bars">
-            <RainBar label="No mês escolhido" value={ready ? summary.value : null} maximum={maximum} kind="recorded"/>
+            <RainBar label="No mês do mapa" value={ready ? summary.value : null} maximum={maximum} kind="recorded"/>
             <RainBar label="Média histórica desse mês" value={ready ? summary.reference : null} maximum={maximum} kind="average"/>
           </div>
           <p className="home-reference-explanation">Referência: o mesmo mês, de 2001 a 2024.</p>
           <div className="home-forecast-note"><span className="home-unavailable-dot" aria-hidden="true"/><span>Previsão de chuva: <strong>ainda não disponível</strong></span></div>
         </section>
-        <HomeHistory manifest={manifest} cellId={selected !== null ? selectedId : null} month={month}/>
+        <HomeHistory manifest={selected !== null ? manifest : null} cellId={selectedId} month={month}/>
         <a className="home-understand" href="/entenda"><span><strong>Entenda o que está acontecendo</strong><small>Veja a evolução das chuvas com mais detalhes.</small></span><span aria-hidden="true">→</span></a>
       </div>
     </main>

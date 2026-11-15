@@ -1,4 +1,6 @@
 import type { RegionsGeoJSON } from "../../types/geography";
+// Native IMERG cell centered at approximately 28.05° S, 52.45° W, near Passo Fundo/RS.
+export const EXAMPLE_CELL_ID = "imerg-monthly-v07:r619:c1275";
 
 export interface RainSummary { value: number | null; reference: number | null; count: number }
 export function rainSummary(values: Array<number | null>, reference: Array<number | null>): RainSummary {

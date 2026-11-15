@@ -169,3 +169,8 @@
 .home-history-chart { min-height: 140px; }
 .home-understand { min-height: 112px; padding-top: 24px; padding-bottom: 24px; }
 @media(max-width:760px) { .home-reading-column { position: static; align-self: auto; } .home-header { min-height: 0; } .home-summary { padding-top: 26px; } .home-comparison { font-size: 32px; } }
+.home-static-date { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; align-items: baseline; margin: 0 7px 16px 36px; border-bottom: 1px solid var(--rule); padding-bottom: 12px; }
+.home-static-date>span { color: var(--ink-2); font-size: 16px; }
+.home-static-date strong { font: 25px var(--serif); }
+.home-static-note { margin: 15px 7px 0 36px; color: var(--ink-2); font-size: 16px; }
+.home-coordinate { font-size: 16px; margin: 6px 0 0; color: var(--ink-2); }
