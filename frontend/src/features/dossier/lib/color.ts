@@ -38,4 +38,5 @@ export const anomalyColor = (pct: number) =>
   anomalyRamp((pct + ANOMALY_RANGE) / (2 * ANOMALY_RANGE));
 export const totalColor = (v: number) =>
   totalRamp((v - TOTAL_RANGE[0]) / (TOTAL_RANGE[1] - TOTAL_RANGE[0]));
+export const monthlyTotalColor = (v: number) => totalRamp(v / 600);
 export const css = ([r, g, b]: RGB) => `rgb(${r} ${g} ${b})`;

@@ -15,7 +15,7 @@ import YearStrip from "./components/Dashboard/YearStrip";
 import ForecastCard from "./components/Dashboard/ForecastCard";
 import HistoricalChart from "./components/Charts/HistoricalChart";
 import ProjectionChart from "./components/Charts/ProjectionChart";
-import { TemporalPlayer } from "./components/TemporalPlayer";
+import { MonthlyRainExplorer } from "./components/MonthlyRainExplorer";
 import { useTemporalPlayback } from "./hooks/useTemporalPlayback";
 import { YearComparison } from "./components/Dashboard/YearComparison";
 import { DataCoverage } from "./components/Dashboard/DataCoverage";
@@ -76,6 +76,7 @@ function Dossier({ data }: { data: Snapshot }) {
               : "Arquivo estático · modo demonstração"}
           </span>
           <a href="/grids">Explorador de grades nativas →</a>
+          <a href="/regioes">Investigação regional →</a>
           <span className="mono muted">
             Dossiê 01 · BBOX de estudo · {Math.abs(bbox.west)}°–
             {Math.abs(bbox.east)}°O, {Math.abs(bbox.south)}°–
@@ -103,29 +104,30 @@ function Dossier({ data }: { data: Snapshot }) {
           >
             {extremes.wet} ({pct(extremes.wetA)})
           </button>
-          . Escolha um ano para abrir o laudo.
+          . Explore os meses no mapa e consulte as comparações anuais abaixo.
         </p>
       </header>
 
       <aside className="scope-notice">
-        <strong>Visualização agregada, não grade nativa.</strong> IMERG em
-        blocos 0,2°; médias do BBOX com máscara de validade GLDAS, sem recorte
-        por estados. Anomalia anual não é tendência estatística nem risco de
-        inundação.
+        <strong>Mapa mensal em grade nativa IMERG de 0,1°.</strong> Células com
+        interseção em PR, SC e RS, sem interpolação. As comparações anuais abaixo
+        mantêm o snapshot agregado de 0,2°. Anomalia não é previsão nem risco de inundação.
       </aside>
-      <section className="timeline" aria-label="Linha do tempo">
+      <MonthlyRainExplorer />
+      <section className="timeline" aria-label="Comparações anuais do snapshot agregado">
         <div className="timeline-head">
           <span className="eyebrow">
-            Anomalia da média anual do recorte, em relação à média 2001–2024
+            Contexto anual agregado · independente do mapa mensal · referência 2001–2024
           </span>
           <span className="mono muted">← → para navegar</span>
         </div>
         <YearStrip data={data} year={year} onSelect={playback.selectYear} />
       </section>
 
+      <details className="annual-context"><summary>Consultar o mapa anual agregado e a sonda de blocos 0,2°</summary>
       <section className="exhibit exhibit--map">
         <div className="exhibit-head">
-          <p className="exhibit-tag">Peça A</p>
+          <p className="exhibit-tag">Contexto anual</p>
           <h2>
             {mode === "anomaly" ? "Anomalia" : "Total"} de precipitação,{" "}
             <span className="year-mark">{year}</span>
@@ -149,7 +151,6 @@ function Dossier({ data }: { data: Snapshot }) {
             </button>
           </div>
         </div>
-        <TemporalPlayer years={data.years} year={year} playback={playback} />
         <div className="map-layout">
           <div>
             <ClimateMap
@@ -181,6 +182,7 @@ function Dossier({ data }: { data: Snapshot }) {
           <RegionPanel data={data} summary={summary} cell={cell} />
         </div>
       </section>
+      </details>
 
       <YearComparison
         data={data}
@@ -243,7 +245,7 @@ function Dossier({ data }: { data: Snapshot }) {
               <li key={n}>{n}</li>
             ))}
             <li>
-              Médias espaciais de totais anuais exibidas em blocos de 0,2° (2×2
+              No contexto anual: médias espaciais de totais anuais em blocos de 0,2° (2×2
               da grade nativa IMERG). A sonda não representa uma célula nativa;
               máscara GLDAS não é linha da costa oficial.
             </li>
