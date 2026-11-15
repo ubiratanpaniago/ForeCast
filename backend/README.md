@@ -1,6 +1,6 @@
 # API do protótipo ForeCast
 
-Esta primeira entrega serve o snapshot agregado existente, sem ler raw, baixar NASA ou executar análises científicas durante requisições. Grades/células permanecem na próxima etapa descrita no contrato do frontend; endpoints ainda não implementados retornam 404, não resultados simulados.
+Esta entrega serve o snapshot agregado e as grades nativas IMERG 0,1° e GLDAS 0,25°, sem ler raw, baixar NASA ou executar análises científicas durante requisições. Veja [preparação das grades](../docs/native-grids.md), [metodologia](../docs/methodology.md) e [contrato completo](../docs/api-contract.md).
 
 ## Executar no PowerShell
 
@@ -22,6 +22,7 @@ Variáveis do processo (o arquivo .env.example é referência; não é carregado
 
 ```powershell
 $env:FORECAST_SNAPSHOT_PATH = 'data/derived/frontend/snapshot.json'
+$env:FORECAST_GRIDS_PATH = 'data/derived/grids'
 $env:FORECAST_CORS_ORIGINS = 'http://localhost:5173,http://127.0.0.1:5173'
 ```
 
@@ -32,6 +33,9 @@ Caminhos relativos são resolvidos a partir de backend/, independentemente do te
 - `GET /api/health`: liveness HTTP 200 com status=ok, contractVersion=0.3, dataAvailable, dataRevision (SHA256) e dataError. A API pode estar funcionando mesmo sem dados.
 - `GET /api/snapshot`: o JSON original validado, sem envelope adicional; preserva meta, grid, landMask, years, annual e monthly. ETag baseado nos bytes, Cache-Control public/no-cache e X-Data-Generated. If-None-Match permite resposta 304 vazia. O navegador administra seu cache HTTP.
 - `/docs`: documentação OpenAPI.
+- `GET /api/grids`: catálogo e disponibilidade das grades.
+- `GET /api/grids/{gridId}/cells?indicator=PRCP_ANNUAL`: células nativas e valores anuais, com filtros de bbox e período.
+- `GET /api/grids/{gridId}/cells/{cellId}/timeseries?indicator=PRCP_ANNUAL`: série anual da célula. Para GLDAS, use `SOIL_SURFACE`.
 
 Erros: `{ "error": { "code": "DATA_UNAVAILABLE", "message": "..." } }`. 503 para arquivo ausente/inacessível/em atualização; DATA_INVALID para arquivo inválido; 404 NOT_FOUND; 422 INVALID_FILTER; 500 INTERNAL_ERROR sem stack trace ou caminhos privados.
 
