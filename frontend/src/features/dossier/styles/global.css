@@ -1213,3 +1213,29 @@ h2 {
 }
 
 @media(max-width:680px){.comparison-bars .chart-tick{font-size:21px;}}
+
+/* Mapa mensal nativo: mantém a paleta e o dossiê claro. */
+.monthly-date { display: flex; gap: 8px; align-items: center; font-size: 12px; }
+.monthly-date input, .monthly-cell-search input { background: var(--card); color: var(--ink); border: 1px solid var(--rule); padding: 8px; font: 12px var(--mono); min-width: 0; }
+.monthly-map-loading { position: absolute; inset: 0; display: grid; place-items: center; background: var(--paper-2); font: 14px var(--mono); }
+.monthly-legend-labels { display: flex; justify-content: space-between; gap: 10px; font: 12px var(--mono); margin-top: 6px; }
+.monthly-legend p, .monthly-panel p, .monthly-science-note { font-size: 12px; line-height: 1.7; }
+.monthly-panel { border-top: 2px solid var(--ink); padding: 18px 0; min-width: 0; }
+.monthly-big { font: 42px/1.2 var(--serif) !important; margin: 12px 0; }
+.monthly-readings { display: grid; grid-template-columns: 1fr auto; gap: 12px; font-size: 13px; margin: 18px 0; }
+.monthly-readings dd { margin: 0; font-family: var(--mono); text-align: right; }
+.monthly-id { overflow-wrap: anywhere; }
+.monthly-cell-search { margin: 25px 0 0 42px; font-size: 12px; }
+.monthly-cell-search>div { display: flex; gap: 8px; margin-top: 6px; }
+.monthly-cell-search input { flex: 1; width: 100%; }
+.monthly-cell-search button, .monthly-error button { border: 1px solid var(--ink); background: var(--paper-2); padding: 8px; font: 12px var(--sans); }
+.monthly-method, .monthly-cell-history { margin-top: 24px; }
+.monthly-method summary, .monthly-cell-history summary, .annual-context>summary { cursor: pointer; font-size: 13px; }
+.monthly-cell-history svg { display: block; width: 100%; height: auto; }
+.monthly-table-scroll { overflow: auto; max-height: 380px; margin-top: 10px; }
+.monthly-table-scroll table { width: 100%; border-collapse: collapse; font: 11px var(--mono); }
+.monthly-table-scroll th, .monthly-table-scroll td { border-bottom: 1px solid var(--rule); padding: 8px 5px; text-align: left; }
+.monthly-error { border: 1px solid var(--accent); padding: 20px; margin: 20px 0; }
+.annual-context { border-bottom: 1px solid var(--rule); padding: 15px 0; }
+.monthly-science-note { color: var(--muted); margin-top: 20px; }
+@media(max-width:680px) { .monthly-date { width: 100%; } .monthly-explorer .map-layout { grid-template-columns: 1fr; gap: 20px; } .monthly-explorer .map-frame { padding-left: 30px; } .monthly-cell-search, .monthly-explorer .legend { margin-left: 30px; } .monthly-readings { grid-template-columns: 1fr 1fr; } }

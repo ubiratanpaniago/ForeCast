@@ -5,6 +5,7 @@ if (window.location.pathname.startsWith("/grids")) {
   void import("./styles.css");
 } else {
   void import("./features/dossier/styles/global.css");
+  if (window.location.pathname.startsWith("/regioes")) void import("./features/regional/regional.css");
 }
 import App from "./App";
 createRoot(document.getElementById("root")!).render(

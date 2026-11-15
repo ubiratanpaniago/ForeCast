@@ -3,3 +3,5 @@ __pycache__/
 .pytest_cache/
 .env
 *.pyc
+# respostas brutas de APIs externas (OSM), regeneradas pelos scripts
+data/cache/

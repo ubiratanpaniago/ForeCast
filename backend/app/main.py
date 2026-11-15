@@ -4,12 +4,16 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException
 
 from app.config import Settings
-from app.routers import health, snapshot, grids
+from app.routers import health, snapshot, grids, regions, infrastructure, monthly
+from app.services.monthly_repository import MonthlyRainfallRepository
 from app.services.grid_repository import GridRepository, GridRequestError
+from app.services.region_repository import RegionRepository
+from app.services.infrastructure_repository import InfrastructureRepository
 from app.services.snapshot_repository import DataError, SnapshotRepository
 
 
@@ -20,9 +24,13 @@ def create_app(settings: Settings | None = None):
     async def lifespan(app):
         app.state.snapshots = SnapshotRepository(settings.snapshot_path)
         app.state.grids = GridRepository(settings.grids_path)
+        app.state.regions = RegionRepository(settings.regions_path)
+        app.state.infrastructure = InfrastructureRepository(settings.infrastructure_path)
+        app.state.monthly = MonthlyRainfallRepository(settings.monthly_path)
         yield
 
     app = FastAPI(title='ForeCast API', version='0.2.0', lifespan=lifespan)
+    app.add_middleware(GZipMiddleware, minimum_size=1000, compresslevel=1)
     app.add_middleware(CORSMiddleware, allow_origins=list(settings.cors_origins), allow_methods=['GET'], allow_headers=['If-None-Match'], expose_headers=['ETag', 'X-Data-Generated'])
 
     @app.exception_handler(DataError)
@@ -49,6 +57,9 @@ def create_app(settings: Settings | None = None):
     app.include_router(health.router)
     app.include_router(snapshot.router)
     app.include_router(grids.router)
+    app.include_router(regions.router)
+    app.include_router(infrastructure.router)
+    app.include_router(monthly.router)
     return app
 
 
