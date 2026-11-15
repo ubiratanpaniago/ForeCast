@@ -1,26 +1,28 @@
 # Tela de apoio
 
-Rota `/apoio`. Layout desktop de uma altura de janela, com lista paginada (dois locais por página), detalhes em abas e painel modal separado para **Como apoiar**. A página inicial aponta para esta rota. Não altera backend, séries históricas ou a tela `/entenda`.
+Rota `/apoio`, na branch `feat/map-simple-home`. Layout desktop de uma janela sem rolagem, seguindo a referência: mapa do Sul à esquerda; local mais próximo, resumo da região e botão separado **Como apoiar** à direita. A paleta e o estilo editorial do sistema permanecem.
 
-## Dados e comportamento
+## Dados já conectados
 
-- Quatro centros urbanos públicos de exemplo em PR, SC e RS. Nenhuma geolocalização pessoal é coletada. Trocar a cidade descarta a resposta anterior e limpa a seleção. Consultas iguais são compartilhadas e guardadas por 15 minutos na memória da página; falhas não ficam em cache.
-- Consulta ao [Overpass API](https://wiki.openstreetmap.org/wiki/Overpass_API), raio de 15 km, com hospitais, clínicas, bombeiros e instalações cadastradas como `amenity=social_facility` + `social_facility=shelter`. A documentação de [acolhimento do OSM](https://wiki.openstreetmap.org/wiki/Tag:social_facility%3Dshelter) descreve o cadastro; não confirma ativação como abrigo para um evento.
-- Resultados ordenados por distância geodésica em linha reta ao centro da cidade. Não é distância rodoviária nem localização do usuário. Sem valores inventados para telefones, lotação, horários ou acessibilidade.
-- Busca na instância pública Private.coffee do Overpass, com timeout, descarte de respostas antigas, estado vazio, erro e nova tentativa. O serviço externo pode estar indisponível ou ter cadastro incompleto. O horário mostrado é o da consulta; não representa confirmação de funcionamento.
-- Estradas: raster do OpenStreetMap, com atribuição. Relevo: hillshade de [Terrain Tiles / Mapzen](https://registry.opendata.aws/terrain-tiles/), Terrarium em S3, com [atribuição das fontes de elevação](https://github.com/tilezen/joerd/blob/master/docs/attribution.md). Camadas carregadas quando ativadas. Não são dados de bloqueios, relevo em tempo real ou avaliação de segurança.
-- Acesso: link explícito para Google Maps, com destino selecionado e sem origem pessoal. Não desenha uma rota inventada ou garante uma rota segura.
-- `Por que aparece?` explica o critério real (categoria e proximidade), a consulta, a revisão disponível do cadastro e as verificações ausentes. Link ao cadastro OSM para consultar ou corrigir a informação.
-- `Como apoiar`: orientações para doações, voluntariado e recursos. Não publica campanhas, vagas ou dados bancários presumidos.
+- Mapa: grades nativas IMERG e anomalia mensal de dezembro de 2024, pelos endpoints existentes `/api/monthly-rainfall` e `/api/monthly-rainfall/years/2024`. Referência: o mesmo mês de 2001–2024. Não representa a chuva de hoje.
+- Ponto inicial: célula real `imerg-monthly-v07:r619:c1275`, aproximadamente 28,05° S e 52,45° O. Clique ou use as setas no mapa para escolher outra célula. Selecionar um ponto muda as barras e a identificação regional.
+- Regiões: `/api/regions`, limites IBGE.
+- Estradas: `/api/infrastructure/roads`, vias OSM pré-processadas pelo sistema. Relevo: `/api/infrastructure/terrain`, classificação exploratória derivada do NASADEM. São carregados sob demanda. O relevo indica suscetibilidade a acúmulo de água, não altitude absoluta nem segurança de um ponto.
+- Não há consulta externa ao Overpass, busca por estabelecimentos ou substituição de pontos calculados por hospitais e bombeiros cadastrados.
+- Como apoiar permanece um painel separado com orientações de doação, voluntariado e recursos.
 
-## Integração pendente
+## Fonte dos pontos calculados: pendente
 
-É necessária uma fonte oficial com abrigos ativados por evento, responsável, fonte verificável, data de confirmação e expiração, horário, serviços, acessibilidade, contato e lotação. Uma fonte de bloqueios atualizados e um serviço de roteamento são necessários para avaliar acesso. Os pontos atuais são **referências a verificar**, não abrigos confirmados.
+A cópia local em `forecast-consolidate`, a cópia `climate-forensics`, as referências Git disponíveis e as APIs locais 8010/8011 foram examinadas. Há dados de rodovias, relevo e 731 **travessias candidatas para investigação**, descritos em `docs/infrastructure-exposure.md`; eles não representam pontos de apoio e não foram reaproveitados como abrigos.
 
-Para produção, avaliar provedor/proxy/cache próprio para pontos e tiles, capacidade e políticas de uso dos serviços. Não fazer varredura global nem baixar tiles em massa.
+É necessário localizar o arquivo, branch ou endpoint dos pontos de apoio calculados que o usuário mencionou. Nenhum endpoint foi inventado e nenhum novo cálculo foi criado. Por enquanto, a página mostra **Pontos de apoio indisponíveis**, em vez de afirmar que não existem locais na região.
 
-## Execução
+`SupportPage` recebe opcionalmente um modelo de apresentação `calculatedPoints`; o adaptador para o formato real do produtor será feito após receber a fonte. A página ainda não recebe esses resultados em execução. Os testes com resultados usam somente fixtures sintéticas identificadas, sem dados de demonstração na aplicação.
 
-Na raiz do projeto: `npm --prefix frontend run dev -- --host 127.0.0.1 --port 5181 --strictPort`. Abrir `http://127.0.0.1:5181/apoio`. A busca e as camadas usam fontes públicas; a tela de apoio não depende do backend NASA.
+Quando forem fornecidos, os resultados serão ordenados por distância geodésica ao ponto selecionado; critérios, fonte e data recebidos podem ser exibidos em **Por que este ponto foi indicado?**. Isso não confirma funcionamento ou acesso. O link de rota abre Google Maps com o destino, sem inventar uma rota segura.
 
-Validação: `npm --prefix frontend test` e `npm --prefix frontend run build`.
+## Execução e verificação
+
+Na raiz: `npm --prefix frontend run dev -- --host 127.0.0.1 --port 5181 --strictPort`. Abrir `http://127.0.0.1:5181/apoio`. Definir `VITE_API_BASE_URL` para a API existente (na prévia local, `http://127.0.0.1:8011`).
+
+Verificações: `npm --prefix frontend test` e `npm --prefix frontend run build`. Backend e dados científicos não foram alterados.
