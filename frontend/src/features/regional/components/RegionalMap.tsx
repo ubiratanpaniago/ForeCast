@@ -10,6 +10,7 @@ import {
 } from "maplibre-gl";
 import workerUrl from "maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url";
 import type { RegionsGeoJSON } from "../../../types/geography";
+import { useLanguage } from "../../../i18n/LanguageContext";
 setWorkerUrl(workerUrl);
 
 export interface Layers {
@@ -47,6 +48,7 @@ const TERRAIN_COLORS = ["match", ["get", "class"], 3, "#4a7c8c", 2, "#9bbcc4", "
 
 /** Mapa das regiões intermediárias com camadas opcionais de relevo, rodovias e travessias. */
 export function RegionalMap(props: Props) {
+  const { t } = useLanguage();
   const { regions, regionColor, colorKey, terrain, roads, crossings, layers, selection, onSelect, tooltip } = props;
   const box = useRef<HTMLDivElement>(null);
   const map = useRef<MapInstance | null>(null);
@@ -75,7 +77,7 @@ export function RegionalMap(props: Props) {
         },
       });
     } catch {
-      setError("Este navegador não conseguiu iniciar o mapa (WebGL indisponível).");
+      setError(t("Este navegador não conseguiu iniciar o mapa (WebGL indisponível)."));
       return;
     }
     m.touchZoomRotate.disableRotation();
@@ -83,7 +85,7 @@ export function RegionalMap(props: Props) {
     m.addControl(
       new AttributionControl({
         compact: true,
-        customAttribution: "Limites: IBGE · Rodovias: © colaboradores do OpenStreetMap (ODbL) · Relevo: NASA NASADEM",
+        customAttribution: t("Limites: IBGE · Rodovias: © colaboradores do OpenStreetMap (ODbL) · Relevo: NASA NASADEM"),
       }),
     );
     map.current = m;
@@ -196,14 +198,14 @@ export function RegionalMap(props: Props) {
       else handlers.current.onSelect({ kind: "region", id: p.id });
     });
     m.on("error", (e) => {
-      if (!/abort/i.test(String(e.error?.message))) setError("Falha ao desenhar o mapa.");
+      if (!/abort/i.test(String(e.error?.message))) setError(t("Falha ao desenhar o mapa."));
     });
     return () => {
       resize.disconnect();
       m.remove();
       map.current = null;
     };
-  }, []);
+  }, [t]);
 
   const setData = (id: string, data: GeoJSON.FeatureCollection | null) => {
     if (ready) (map.current!.getSource(id) as GeoJSONSource).setData(data ?? EMPTY);
@@ -259,8 +261,8 @@ export function RegionalMap(props: Props) {
 
   return (
     <div className="rg-map">
-      <div ref={box} className="rg-map-canvas" role="region" aria-label="Mapa de PR, SC e RS" />
-      {!ready && !error && <div className="rg-map-msg">Carregando mapa…</div>}
+      <div ref={box} className="rg-map-canvas" role="region" aria-label={t("Mapa de PR, SC e RS")} />
+      {!ready && !error && <div className="rg-map-msg">{t("Carregando mapa…")}</div>}
       {error && <div className="rg-map-msg rg-map-msg--error">{error}</div>}
       {tip && (
         <div className="rg-tip" style={{ left: tip.x, top: tip.y }}>

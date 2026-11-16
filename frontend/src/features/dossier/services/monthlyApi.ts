@@ -33,9 +33,9 @@ const validValue = (n: unknown) => n === null || (finite(n) && n >= 0);
 export function monthlyAnomaly(value: number | null, reference: number | null): number | null {
   return value === null || reference === null || reference <= 0 ? null : (value-reference)/reference*100;
 }
-export function monthLabel(t: string) {
+export function monthLabel(t: string, language: "pt" | "en" = "pt") {
   const [year, month] = t.split("-").map(Number);
-  return new Date(Date.UTC(year, month-1, 1)).toLocaleDateString("pt-BR", { month:"short", year:"numeric", timeZone:"UTC" });
+  return new Date(Date.UTC(year, month-1, 1)).toLocaleDateString(language === "pt" ? "pt-BR" : "en-US", { month:"short", year:"numeric", timeZone:"UTC" });
 }
 async function request(url: string, signal: AbortSignal): Promise<unknown> {
   const result = await apiFetch(url, { signal, timeoutMs: 20000 });

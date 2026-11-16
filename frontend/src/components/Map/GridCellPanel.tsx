@@ -1,6 +1,7 @@
 import type { GridCell, GridDefinition, CellDetail } from "../../types/grid";
 import type { LoadState, LayerId } from "../../types/geography";
 import { SelectionSummary } from "./SelectionSummary";
+import { useLanguage } from "../../i18n/LanguageContext";
 export function GridCellPanel({
   cell,
   grid,
@@ -16,62 +17,64 @@ export function GridCellPanel({
   error: string;
   layer: LayerId;
 }) {
+  const { language, t } = useLanguage();
+  const locale = language === "pt" ? "pt-BR" : "en-US";
+  const coordinate = (value: number) => value.toLocaleString(locale, { maximumFractionDigits: 5 });
   return (
     <section className="cell-panel">
-      <div className="eyebrow">03 / CÉLULA NATIVA</div>
+      <div className="eyebrow">{t("03 / CÉLULA NATIVA")}</div>
       {!cell ? (
         <p>
-          Selecione uma célula real no mapa quando a grade estiver disponível.
+          {t("Selecione uma célula real no mapa quando a grade estiver disponível.")}
         </p>
       ) : (
         <>
           <h2>{cell.id}</h2>
           {cell.annualValue !== undefined && <p>
-            Último ano do período: {cell.annualValue === null ? "Sem dados completos" : `${cell.annualValue.toLocaleString("pt-BR", { maximumFractionDigits: 2 })} ${detail?.metadata.unit ?? ""}`}
+            {t("Último ano do período:")} {cell.annualValue === null ? t("Sem dados completos") : `${cell.annualValue.toLocaleString(locale, { maximumFractionDigits: 2 })} ${detail?.metadata.unit ?? ""}`}
           </p>}
           <dl>
-            <dt>Grade</dt>
+            <dt>{t("Grade")}</dt>
             <dd>{grid?.name}</dd>
-            <dt>Índice nativo</dt>
+            <dt>{t("Índice nativo")}</dt>
             <dd>
-              Linha {cell.row} / coluna {cell.column}
+              {t("Linha {row} / coluna {column}").replace("{row}", cell.row.toLocaleString(locale)).replace("{column}", cell.column.toLocaleString(locale))}
             </dd>
-            <dt>Centro WGS84</dt>
+            <dt>{t("Centro WGS84")}</dt>
             <dd>
-              {cell.center[1].toFixed(5)}°, {cell.center[0].toFixed(5)}° (lat,
-              lon)
+              {cell.center[1].toLocaleString(locale, { minimumFractionDigits: 5, maximumFractionDigits: 5 })}°, {cell.center[0].toLocaleString(locale, { minimumFractionDigits: 5, maximumFractionDigits: 5 })}° ({t("lat")}, {t("lon")})
             </dd>
-            <dt>Resolução</dt>
+            <dt>{t("Resolução")}</dt>
             <dd>
               {grid?.resolutionDegrees}° × {grid?.resolutionDegrees}°
             </dd>
-            <dt>Interseção</dt>
+            <dt>{t("Interseção")}</dt>
             <dd>
               {cell.fractionInside === null
-                ? "Não informada"
-                : `${(cell.fractionInside * 100).toFixed(1)}% nos estados`}
+                ? t("Não informada")
+                : `${(cell.fractionInside * 100).toLocaleString(locale, { minimumFractionDigits: 1, maximumFractionDigits: 1 })}% ${t("nos estados")}`}
             </dd>
           </dl>
           <details>
-            <summary>Limites geográficos</summary>
+            <summary>{t("Limites geográficos")}</summary>
             <p className="mono">
-              W {cell.bounds[0]} / S {cell.bounds[1]}
-              <br />E {cell.bounds[2]} / N {cell.bounds[3]}
+              W {coordinate(cell.bounds[0])} / S {coordinate(cell.bounds[1])}
+              <br />E {coordinate(cell.bounds[2])} / N {coordinate(cell.bounds[3])}
             </p>
           </details>
           {status === "loading" ? (
-            <p role="status">Consultando série da célula…</p>
+            <p role="status">{t("Consultando série da célula…")}</p>
           ) : error ? (
-            <p role="alert">{error}</p>
+            <p role="alert">{t(error)}</p>
           ) : (
             detail && (
               <>
                 <p className="source-note">
                   {detail.metadata.productId} · v{detail.metadata.version}
                   <br />
-                  Unidade anual: {detail.metadata.unit}
+                  {t("Unidade anual:")} {detail.metadata.unit}
                   <br />
-                  Período: {detail.period.start}–{detail.period.end}
+                  {t("Período:")} {detail.period.start}–{detail.period.end}
                 </p>
                 {detail.statistics ? (
                   <SelectionSummary
@@ -90,20 +93,17 @@ export function GridCellPanel({
                   />
                 ) : (
                   <p>
-                    Série disponível. Análise estatística ainda não fornecida;
-                    nenhum teste foi calculado no navegador.
+                    {t("Série disponível. Análise estatística ainda não fornecida; nenhum teste foi calculado no navegador.")}
                   </p>
                 )}
                 <details className="annual-series" open>
                   <summary>
-                    Série anual ·{" "}
-                    {detail.series.filter((p) => p.value !== null).length}/
-                    {detail.series.length} anos com dados
+                    {t("Série anual · {available}/{total} anos com dados").replace("{available}", detail.series.filter((p) => p.value !== null).length.toLocaleString(locale)).replace("{total}", detail.series.length.toLocaleString(locale))}
                   </summary>
                   <table>
                     <thead>
                       <tr>
-                        <th>Ano</th>
+                        <th>{t("Ano")}</th>
                         <th>{detail.metadata.unit}</th>
                       </tr>
                     </thead>
@@ -113,8 +113,8 @@ export function GridCellPanel({
                           <td>{p.year}</td>
                           <td>
                             {p.value === null
-                              ? "Sem dados"
-                              : p.value.toLocaleString("pt-BR", {
+                              ? t("Sem dados")
+                              : p.value.toLocaleString(locale, {
                                   maximumFractionDigits: 3,
                                 })}
                           </td>
@@ -124,8 +124,8 @@ export function GridCellPanel({
                   </table>
                 </details>
                 <div className="quality-notes">
-                  {detail.metadata.qualityNotes.map((n) => (
-                    <p key={n}>{n}</p>
+                    {detail.metadata.qualityNotes.map((n) => (
+                    <p key={n}>{t(n)}</p>
                   ))}
                 </div>
               </>

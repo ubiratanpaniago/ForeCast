@@ -1,11 +1,14 @@
+import { useLanguage } from "../../i18n/LanguageContext";
+
 export function MapControls({ onReset }: { onReset: () => void }) {
+  const { t } = useLanguage();
   return (
     <button
       className="reset-button"
       onClick={onReset}
-      title="Restaurar enquadramento do Sul do Brasil"
+      title={t("Restaurar enquadramento do Sul do Brasil")}
     >
-      <span aria-hidden="true">⌖</span> Restaurar vista
+      <span aria-hidden="true">⌖</span> {t("Restaurar vista")}
     </button>
   );
 }

@@ -9,6 +9,7 @@ import {
   GraticuleLabels,
   HoverMarker,
 } from "./MapLayers";
+import { useLanguage } from "../../../../i18n/LanguageContext";
 
 interface Props {
   data: Snapshot;
@@ -31,6 +32,7 @@ export default function ClimateMap({
   onHover,
   onSelect,
 }: Props) {
+  const { t } = useLanguage();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [highlightSouth, setHighlightSouth] = useState(true);
   const { grid, meta } = data;
@@ -85,9 +87,9 @@ export default function ClimateMap({
           onClick={() => setHighlightSouth((v) => !v)}
           aria-pressed={highlightSouth}
         >
-          {highlightSouth ? "Sul em destaque" : "Recorte completo"}
+          {highlightSouth ? t("Sul em destaque") : t("Recorte completo")}
         </button>
-        <span>Limites estaduais · IBGE</span>
+        <span>{t("Limites estaduais · IBGE")}</span>
       </div>
       <div
         className="map"
@@ -126,7 +128,7 @@ export default function ClimateMap({
             Math.max(0, Math.min(nlon - 1, j)),
           ]);
         }}
-        aria-label={`Mapa agregado de ${mode === "anomaly" ? "anomalia" : "total"} de precipitação em ${year}. Use as setas para explorar e Enter para fixar.`}
+        aria-label={t("Mapa agregado de {type} de precipitação em {year}. Use as setas para explorar e Enter para fixar.").replace("{type}", t(mode === "anomaly" ? "anomalia" : "total")).replace("{year}", String(year))}
       >
         <canvas
           ref={canvasRef}
@@ -147,8 +149,7 @@ export default function ClimateMap({
         <GraticuleLabels bbox={bbox} />
       </div>
       <p className="map-focus-note">
-        Destaque visual de PR, SC e RS. Os valores e as médias continuam
-        referentes ao recorte original do snapshot.
+        {t("Destaque visual de PR, SC e RS. Os valores e as médias continuam referentes ao recorte original do snapshot.")}
       </p>
     </div>
   );

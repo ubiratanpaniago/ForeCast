@@ -5,10 +5,11 @@ import type {
   Region,
 } from "../../types/geography";
 import { evidenceOf, indicators } from "./MapLayers";
-const format = (value: number | null | undefined) =>
+import { useLanguage } from "../../i18n/LanguageContext";
+const format = (value: number | null | undefined, locale: string) =>
   value == null
     ? "—"
-    : value.toLocaleString("pt-BR", { maximumFractionDigits: 3 });
+    : value.toLocaleString(locale, { maximumFractionDigits: 3 });
 export function SelectionSummary({
   region,
   value,
@@ -20,17 +21,19 @@ export function SelectionSummary({
   layer: LayerId;
   status: LoadState;
 }) {
+  const { language, t } = useLanguage();
+  const locale = language === "pt" ? "pt-BR" : "en-US";
   const stats = value?.statistics;
   const evidence = evidenceOf(value);
   const descriptions = {
-    significant: "Evidência significativa",
-    inconclusive: "Resultado inconclusivo",
-    exploratory: "Resultado exploratório · revisar qualidade",
-    missing: "Dados insuficientes / indisponíveis",
+    significant: t("Evidência significativa"),
+    inconclusive: t("Resultado inconclusivo"),
+    exploratory: t("Resultado exploratório · revisar qualidade"),
+    missing: t("Dados insuficientes / indisponíveis"),
   };
   return (
     <section className="selection-summary" aria-live="polite">
-      <div className="eyebrow">03 / EVIDÊNCIAS DA REGIÃO</div>
+      <div className="eyebrow">{t("03 / EVIDÊNCIAS DA REGIÃO")}</div>
       {region ? (
         <>
           <div className="region-heading">
@@ -40,78 +43,78 @@ export function SelectionSummary({
           <p className="mono muted">
             ID {region.id} ·{" "}
             {region.id.length === 2
-              ? "Unidade da Federação"
-              : "Região de análise"}
+              ? t("Unidade da Federação")
+              : t("Região de análise")}
           </p>
           {layer === "neutral" ? (
             <p className="neutral-message">
-              Ative tendências históricas para explorar os indicadores.
+              {t("Ative tendências históricas para explorar os indicadores.")}
             </p>
           ) : (
             <>
               <p className="metric-label">
                 {value
-                  ? indicators[value.indicator].name
-                  : "Tendência histórica"}
+                  ? t(indicators[value.indicator].name)
+                  : t("Tendência histórica")}
               </p>
               <div className="metric-value">
                 {status === "loading"
                   ? "…"
                   : status === "error" || evidence === "missing"
                     ? "—"
-                    : format(stats?.slopePerDecade)}
+                  : format(stats?.slopePerDecade, locale)}
                 <span>
                   {value?.metadata.unit ?? ""}
-                  <small> / década</small>
+                  <small> / {t("década")}</small>
                 </span>
               </div>
               <p className={`availability evidence-${evidence}`}>
                 {status === "loading"
-                  ? "Carregando análise…"
+                  ? t("Carregando análise…")
                   : status === "error"
-                    ? "Fonte indisponível"
+                    ? t("Fonte indisponível")
                     : descriptions[evidence]}
               </p>
               {value && status === "ready" && (
                 <>
                   <dl>
-                    <dt>Período</dt>
+                    <dt>{t("Período")}</dt>
                     <dd>
                       {value.period.start}–{value.period.end}
                     </dd>
-                    <dt>Valor de p</dt>
-                    <dd>{format(stats?.pValue)}</dd>
-                    <dt>Tau</dt>
-                    <dd>{format(stats?.tau)}</dd>
-                    <dt>IC de 95%</dt>
+                    <dt>{t("Valor de p")}</dt>
+                    <dd>{format(stats?.pValue, locale)}</dd>
+                    <dt>{t("Tau")}</dt>
+                    <dd>{format(stats?.tau, locale)}</dd>
+                    <dt>{t("IC de 95%")}</dt>
                     <dd>
                       {stats?.confidenceInterval95
-                        ? `${format(stats.confidenceInterval95[0])} a ${format(stats.confidenceInterval95[1])} ${value.metadata.unit}/década`
-                        : "Indisponível"}
+                        ? `${format(stats.confidenceInterval95[0], locale)} ${t("a")} ${format(stats.confidenceInterval95[1], locale)} ${value.metadata.unit}/${t("década")}`
+                        : t("Indisponível")}
                     </dd>
-                    <dt>Direção</dt>
+                    <dt>{t("Direção")}</dt>
                     <dd>
                       {stats?.direction === "increasing"
-                        ? "Crescente"
+                        ? t("Crescente")
                         : stats?.direction === "decreasing"
-                          ? "Decrescente"
-                          : "Inconclusiva"}
+                          ? t("Decrescente")
+                          : t("Inconclusiva")}
                     </dd>
-                    <dt>Qualidade</dt>
+                    <dt>{t("Qualidade")}</dt>
                     <dd>
                       {stats?.status === "valid"
-                        ? "Válida"
+                        ? t("Válida")
                         : stats?.status === "exploratory"
-                          ? "Exploratória"
-                          : "Insuficiente"}
+                          ? t("Exploratória")
+                          : t("Insuficiente")}
                     </dd>
-                    <dt>Método</dt>
-                    <dd>{stats?.method}</dd>
-                    <dt>Fonte</dt>
+                    <dt>{t("Método")}</dt>
+                    <dd>{t(stats?.method ?? "")}</dd>
+                    <dt>{t("Fonte")}</dt>
                     <dd>
                       {value.metadata.productId} · v{value.metadata.version}
                     </dd>
-                    <dt>DOI</dt>
+                    <dt>{t("DOI")}</dt>
                     <dd>
                       {value.metadata.sourceDOI.startsWith("10.") ? (
                         <a
@@ -122,13 +125,13 @@ export function SelectionSummary({
                           {value.metadata.sourceDOI}
                         </a>
                       ) : (
-                        "Não se aplica (sintético)"
+                        t("Não se aplica (sintético)")
                       )}
                     </dd>
                   </dl>
                   <div className="quality-notes">
                     {value.metadata.qualityNotes.map((note) => (
-                      <p key={note}>{note}</p>
+                      <p key={note}>{t(note)}</p>
                     ))}
                   </div>
                 </>
@@ -139,10 +142,9 @@ export function SelectionSummary({
       ) : (
         <div className="empty-selection">
           <span aria-hidden="true">⌖</span>
-          <h2>Explore uma evidência</h2>
+          <h2>{t("Explore uma evidência")}</h2>
           <p>
-            Selecione uma região para inspecionar a magnitude, a significância e
-            as limitações da tendência.
+            {t("Selecione uma região para inspecionar a magnitude, a significância e as limitações da tendência.")}
           </p>
         </div>
       )}

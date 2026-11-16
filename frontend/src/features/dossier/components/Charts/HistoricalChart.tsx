@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import type { MonthlyPoint, SeriesKey, Snapshot } from "../../types/climate";
 import { useWidth } from "../../hooks/useWidth";
 import { monthLabel } from "../../lib/format";
+import { useLanguage } from "../../../../i18n/LanguageContext";
 
 interface Props {
   data: Snapshot;
@@ -42,6 +43,8 @@ export default function HistoricalChart({
   year,
   onSelectYear,
 }: Props) {
+  const { language, t } = useLanguage();
+  const locale = language === "pt" ? "pt-BR" : "en-US";
   const [ref, width] = useWidth<HTMLDivElement>();
   const [hover, setHover] = useState<number | null>(null);
   const cfg = SERIES[series];
@@ -115,7 +118,7 @@ export default function HistoricalChart({
   return (
     <div className="chart">
       <div className="chart-head">
-        <div className="seg" role="tablist" aria-label="Variável">
+        <div className="seg" role="tablist" aria-label={t("Variável")}>
           {(Object.keys(SERIES) as SeriesKey[]).map((k) => (
             <button
               key={k}
@@ -124,20 +127,19 @@ export default function HistoricalChart({
               className="seg-btn"
               onClick={() => onSeriesChange(k)}
             >
-              {SERIES[k].label}
+              {t(SERIES[k].label)}
             </button>
           ))}
         </div>
         <div className="chart-key">
-          <span className="key key--line">mensal</span>
-          <span className="key key--roll">média móvel 12 meses</span>
+          <span className="key key--line">{t("mensal")}</span>
+          <span className="key key--roll">{t("média móvel 12 meses")}</span>
           <span className="mono muted">{cfg.unit}</span>
         </div>
       </div>
       {coverage < nMonths && (
         <p className="chart-note">
-          Cobertura parcial: {coverage} de {nMonths} meses presentes no
-          snapshot. Os vazios são falta de dados, não zeros.
+          {t("Cobertura parcial: {coverage} de {expected} meses presentes no snapshot. Os vazios são falta de dados, não zeros.").replace("{coverage}", coverage.toLocaleString(locale)).replace("{expected}", nMonths.toLocaleString(locale))}
         </p>
       )}
       <div ref={ref} className="chart-body">
@@ -148,7 +150,7 @@ export default function HistoricalChart({
           onPointerLeave={() => setHover(null)}
           onClick={(e) => onSelectYear(y0 + Math.floor(kFromEvent(e) / 12))}
           role="img"
-          aria-label={`${cfg.label} mensal, ${y0}–${data.years[data.years.length - 1]}`}
+          aria-label={t("{label} mensal, {start}–{end}").replace("{label}", t(cfg.label)).replace("{start}", String(y0)).replace("{end}", String(data.years[data.years.length - 1]))}
         >
           <rect
             className="chart-sel"
@@ -211,11 +213,11 @@ export default function HistoricalChart({
             className="chart-tip"
             style={{ left: Math.min(x(hover) + 12, width - 160), top: M.top }}
           >
-            <span className="mono">{monthLabel(hoverT)}</span>
+            <span className="mono">{monthLabel(hoverT, language)}</span>
             <strong>
               {hp
-                ? `${hp.v.toFixed(cfg.decimals).replace(".", ",")} ${cfg.unit}`
-                : "sem dado"}
+                ? `${hp.v.toLocaleString(locale, { minimumFractionDigits: cfg.decimals, maximumFractionDigits: cfg.decimals })} ${cfg.unit}`
+                : t("sem dado")}
             </strong>
           </div>
         )}

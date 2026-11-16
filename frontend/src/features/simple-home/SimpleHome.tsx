@@ -7,15 +7,16 @@ import { monthlyAnomaly } from "../dossier/services/monthlyApi";
 import { HomeHistory } from "./HomeHistory";
 import { EXAMPLE_CELL_ID, fullMonth, placeName, rainDescription } from "./homeData";
 import { TopNavigation } from "../../components/TopNavigation";
+import { useLanguage } from "../../i18n/LanguageContext";
 import "./simple-home.css";
 
-const mm = (value: number | null) => value === null ? "Sem dados" : `${value.toLocaleString("pt-BR", { maximumFractionDigits: 0 })} mm`;
+const mm = (value: number | null, locale: string) => value === null ? (locale === "en-US" ? "No data" : "Sem dados") : `${value.toLocaleString(locale, { maximumFractionDigits: 0 })} mm`;
 
-function RainBar({ label, value, maximum, kind }: {
-  label: string; value: number | null; maximum: number; kind: "recorded" | "average";
+function RainBar({ label, value, maximum, kind, locale }: {
+  label: string; value: number | null; maximum: number; kind: "recorded" | "average"; locale: string;
 }) {
   return <div className="home-rain-row">
-    <div className="home-rain-label"><span>{label}</span><strong>{mm(value)}</strong></div>
+    <div className="home-rain-label"><span>{label}</span><strong>{mm(value, locale)}</strong></div>
     <div className="home-rain-track" aria-hidden="true">
       {value !== null && <span className={`home-rain-fill ${kind}`} style={{ width: `${value / maximum * 100}%` }} />}
     </div>
@@ -23,6 +24,8 @@ function RainBar({ label, value, maximum, kind }: {
 }
 
 export default function SimpleHome() {
+  const { t, language } = useLanguage();
+  const locale = language === "en" ? "en-US" : "pt-BR";
   const month = "2024-12";
   const [selectedId, setSelectedId] = useState(EXAMPLE_CELL_ID);
   const [retry, setRetry] = useState(0);
@@ -46,10 +49,11 @@ export default function SimpleHome() {
     return { value: null, reference: null, count: 0 };
   }, [frame, reference, selected]);
   const location = useMemo(() => {
-    if (!manifest || selected === null) return "Exemplo no Sul do Brasil";
+    if (!manifest || selected === null) return t("Exemplo no Sul do Brasil");
     const index = manifest.cells[selected].index;
-    return placeName(regions, manifest.grid.lon[index % manifest.grid.lon.length], manifest.grid.lat[Math.floor(index / manifest.grid.lon.length)]);
-  }, [manifest, selected, regions]);
+    const name = placeName(regions, manifest.grid.lon[index % manifest.grid.lon.length], manifest.grid.lat[Math.floor(index / manifest.grid.lon.length)]);
+    return language === "en" && name.startsWith("Região de ") ? `Region of ${name.slice("Região de ".length)}` : name;
+  }, [manifest, selected, regions, language, t]);
   const anomaly = ready ? monthlyAnomaly(summary.value, summary.reference) : null;
   const maximum = Math.max(summary.value ?? 0, summary.reference ?? 0, 1);
   const changePoint = (i: number) => { if (manifest) setSelectedId(manifest.cells[i].id); };
@@ -58,43 +62,43 @@ export default function SimpleHome() {
   const longitude = point !== null && manifest ? manifest.grid.lon[point % manifest.grid.lon.length] : null;
 
   return <div className="simple-home">
-    <a className="home-skip" href="#home-main">Ir para o conteúdo</a>
+    <a className="home-skip" href="#home-main">{t("Ir para o conteúdo")}</a>
     <TopNavigation page="home" title="As chuvas na sua região" subtitle="Veja o mapa. Escolha um lugar. Entenda as mudanças." />
     <main id="home-main" className="home-dashboard" tabIndex={-1}>
       <section className="home-map-column" aria-labelledby="home-map-title">
-        <div className="home-map-heading"><h2 id="home-map-title">Onde choveu mais ou menos</h2>
-          <p>Clique em um lugar para ver os dados ao lado.</p></div>
-        <div className="home-static-date"><span>Dados históricos</span><strong>{fullMonth(month)}</strong></div>
-        {error ? <div className="home-data-message" role="alert"><h3>Não conseguimos carregar as chuvas.</h3><p>Tente novamente para ver o mapa.</p><button onClick={() => setRetry(v => v + 1)}>Tentar novamente</button></div>
-          : !manifest ? <div className="home-data-message" role="status">Carregando o mapa de chuvas…</div>
+        <div className="home-map-heading"><h2 id="home-map-title">{t("Onde choveu mais ou menos")}</h2>
+          <p>{t("Clique em um lugar para ver os dados ao lado.")}</p></div>
+        <div className="home-static-date"><span>{t("Dados históricos")}</span><strong>{fullMonth(month, locale)}</strong></div>
+        {error ? <div className="home-data-message" role="alert"><h3>{t("Não conseguimos carregar as chuvas.")}</h3><p>{t("Tente novamente para ver o mapa.")}</p><button onClick={() => setRetry(v => v + 1)}>{t("Tentar novamente")}</button></div>
+          : !manifest ? <div className="home-data-message" role="status">{t("Carregando o mapa de chuvas…")}</div>
           : <MonthlyRainMap manifest={manifest} values={ready ? frame!.values : null} month={month} mode="anomaly" selected={selected} onSelect={changePoint} />}
-        <div className="home-map-key" aria-label="Legenda das cores">
-          <span><i className="home-dry-swatch" /> Menos chuva</span><span><i className="home-normal-swatch" /> Perto da média</span><span><i className="home-wet-swatch" /> Mais chuva</span>
+        <div className="home-map-key" aria-label={t("Legenda das cores")}>
+          <span><i className="home-dry-swatch" /> {t("Menos chuva")}</span><span><i className="home-normal-swatch" /> {t("Perto da média")}</span><span><i className="home-wet-swatch" /> {t("Mais chuva")}</span>
         </div>
-        <p className="home-map-key-note">Comparação com o mesmo mês de outros anos. Cinza: sem dados para mostrar.</p>
-        <p className="home-static-note">Este mapa mostra o passado. Para explorar outros meses, clique em “Entenda”.</p>
+        <p className="home-map-key-note">{t("Comparação com o mesmo mês de outros anos. Cinza: sem dados para mostrar.")}</p>
+        <p className="home-static-note">{t("Este mapa mostra o passado. Para explorar outros meses, clique em “Entenda”.")}</p>
       </section>
       <div className="home-reading-column">
         <section className="home-summary" aria-labelledby="home-summary-title">
-          <div className="home-section-heading"><h2 id="home-summary-title">Chuva na região escolhida</h2></div>
+          <div className="home-section-heading"><h2 id="home-summary-title">{t("Chuva na região escolhida")}</h2></div>
           <div className="home-place"><span className="home-place-dot" aria-hidden="true"/><strong>{location}</strong>
-            {selectedId !== EXAMPLE_CELL_ID && <button onClick={() => setSelectedId(EXAMPLE_CELL_ID)}>Voltar ao exemplo</button>}</div>
-          <p className="home-place-note">{selectedId === EXAMPLE_CELL_ID ? "Localização de exemplo. Não é a sua localização atual." : "Dados do ponto aproximado que você escolheu."}</p>
-          {latitude !== null && longitude !== null && <p className="home-coordinate">Coordenada: {Math.abs(latitude).toLocaleString("pt-BR", {maximumFractionDigits:2})}° S · {Math.abs(longitude).toLocaleString("pt-BR", {maximumFractionDigits:2})}° O</p>}
+            {selectedId !== EXAMPLE_CELL_ID && <button onClick={() => setSelectedId(EXAMPLE_CELL_ID)}>{t("Voltar ao exemplo")}</button>}</div>
+          <p className="home-place-note">{selectedId === EXAMPLE_CELL_ID ? t("Localização de exemplo. Não é a sua localização atual.") : t("Dados do ponto aproximado que você escolheu.")}</p>
+          {latitude !== null && longitude !== null && <p className="home-coordinate">{t("Coordenada:")} {Math.abs(latitude).toLocaleString(locale, {maximumFractionDigits:2})}° S · {Math.abs(longitude).toLocaleString(locale, {maximumFractionDigits:2})}° {language === "en" ? "W" : "O"}</p>}
           <p className={`home-comparison ${anomaly !== null && anomaly < 0 ? "drier" : "wetter"}`} aria-live="polite">
-            {!ready ? "Aguardando os dados do mês…" : rainDescription(anomaly)}</p>
+            {!ready ? t("Aguardando os dados do mês…") : rainDescription(anomaly, locale)}</p>
           <div className="home-bars">
-            <RainBar label="No mês do mapa" value={ready ? summary.value : null} maximum={maximum} kind="recorded"/>
-            <RainBar label="Média histórica desse mês" value={ready ? summary.reference : null} maximum={maximum} kind="average"/>
+            <RainBar label={t("No mês do mapa")} value={ready ? summary.value : null} maximum={maximum} kind="recorded" locale={locale}/>
+            <RainBar label={t("Média histórica desse mês")} value={ready ? summary.reference : null} maximum={maximum} kind="average" locale={locale}/>
           </div>
-          <p className="home-reference-explanation">Referência: o mesmo mês, de 2001 a 2024.</p>
-          <div className="home-forecast-note"><span className="home-unavailable-dot" aria-hidden="true"/><span>Previsão de chuva: <strong>ainda não disponível</strong></span></div>
+          <p className="home-reference-explanation">{t("Referência: o mesmo mês, de 2001 a 2024.")}</p>
+          <div className="home-forecast-note"><span className="home-unavailable-dot" aria-hidden="true"/><span>{t("Previsão de chuva:")} <strong>{t("ainda não disponível")}</strong></span></div>
         </section>
         <HomeHistory manifest={selected !== null ? manifest : null} cellId={selectedId} month={month} location={location}/>
-        <a className="home-understand" href="/entenda"><span><strong>Entenda o que está acontecendo</strong><small>Veja a evolução das chuvas com mais detalhes.</small></span><span aria-hidden="true">→</span></a>
+        <a className="home-understand" href="/entenda"><span><strong>{t("Entenda o que está acontecendo")}</strong><small>{t("Veja a evolução das chuvas com mais detalhes.")}</small></span><span aria-hidden="true">→</span></a>
       </div>
     </main>
-    <footer className="home-footer"><span>ForeCast · Paraná, Santa Catarina e Rio Grande do Sul</span><span>Dados NASA · Informações históricas, sem avaliação de rota segura.</span></footer>
+    <footer className="home-footer"><span>{t("ForeCast · Paraná, Santa Catarina e Rio Grande do Sul")}</span><span>{t("Dados NASA · Informações históricas, sem avaliação de rota segura.")}</span></footer>
 
   </div>;
 }

@@ -2,6 +2,7 @@ import type { Snapshot } from "../../types/climate";
 import { anomalyColor, css } from "../../lib/color";
 import { anomalyPct } from "../../hooks/useRegionData";
 import { pct } from "../../lib/format";
+import { useLanguage } from "../../../../i18n/LanguageContext";
 
 interface Props {
   data: Snapshot;
@@ -11,6 +12,7 @@ interface Props {
 
 /** Uma barra por ano: altura e cor = anomalia regional do total anual. */
 export default function YearStrip({ data, year, onSelect }: Props) {
+  const { language, t } = useLanguage();
   const { regional, regionalClimatology } = data.annual;
   const max = Math.max(
     ...data.years.map((y) =>
@@ -33,7 +35,7 @@ export default function YearStrip({ data, year, onSelect }: Props) {
   };
 
   return (
-    <div className="strip" role="radiogroup" aria-label="Ano" onKeyDown={onKey}>
+    <div className="strip" role="radiogroup" aria-label={t("Ano")} onKeyDown={onKey}>
       {data.years.map((y) => {
         const a = anomalyPct(regional[y], regionalClimatology);
         const h = (Math.abs(a) / (max || 1)) * 48;
@@ -45,8 +47,8 @@ export default function YearStrip({ data, year, onSelect }: Props) {
             tabIndex={y === year ? 0 : -1}
             className="strip-year"
             onClick={() => onSelect(y)}
-            aria-label={`${y}: ${pct(a)}`}
-            title={`${y}: ${pct(a)}`}
+            aria-label={t("{year}: {anomaly}").replace("{year}", String(y)).replace("{anomaly}", pct(a, language))}
+            title={t("{year}: {anomaly}").replace("{year}", String(y)).replace("{anomaly}", pct(a, language))}
           >
             <span className="strip-plot">
               <span

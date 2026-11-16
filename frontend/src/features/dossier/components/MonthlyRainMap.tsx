@@ -3,12 +3,14 @@ import { SouthContext } from "./Map/SouthContext";
 import { Graticule, GraticuleLabels } from "./Map/MapLayers";
 import { anomalyColor, monthlyTotalColor } from "../lib/color";
 import { monthlyAnomaly, monthLabel, type MonthlyManifest } from "../services/monthlyApi";
+import { useLanguage } from "../../../i18n/LanguageContext";
 
 export function MonthlyRainMap({manifest,values,month,mode,selected,onSelect,overlay}: {
   manifest:MonthlyManifest; values:Array<number|null>|null; month:string; mode:"total"|"anomaly";
   selected:number|null; onSelect:(index:number)=>void;
   overlay?: ReactNode;
 }) {
+  const { language, t } = useLanguage();
   const canvas=useRef<HTMLCanvasElement>(null);
   const {grid,cells}=manifest;
   const width=grid.lon.length,height=grid.lat.length;
@@ -33,7 +35,7 @@ export function MonthlyRainMap({manifest,values,month,mode,selected,onSelect,ove
   const row=selectedCell?Math.floor(selectedCell.index/width):0,column=selectedCell?selectedCell.index%width:0;
   return <div className="map-frame">
     <div className="map" role="group" tabIndex={0}
-      aria-label={`Mapa mensal de ${mode==="total"?"chuva":"anomalia"}, ${monthLabel(month)}. Use as setas para selecionar células nativas.`}
+      aria-label={t("Mapa mensal de {type}, {month}. Use as setas para selecionar células nativas.").replace("{type}", t(mode==="total"?"chuva":"anomalia")).replace("{month}", monthLabel(month, language))}
       style={{aspectRatio:String((bbox.east-bbox.west)*Math.cos(28*Math.PI/180)/(bbox.north-bbox.south)),maxWidth:"74dvh"}}
       onPointerDown={e=>{
         if(!values) return;
@@ -62,8 +64,8 @@ export function MonthlyRainMap({manifest,values,month,mode,selected,onSelect,ove
       </svg>
       <GraticuleLabels bbox={bbox} />
       {overlay}
-      {!values&&<div className="monthly-map-loading" role="status">Carregando {monthLabel(month)}…</div>}
+      {!values&&<div className="monthly-map-loading" role="status">{t("Carregando {month}…").replace("{month}", monthLabel(month, language))}</div>}
     </div>
-    <p className="map-focus-note">IMERG 0,1° · células nativas inteiras com interseção em PR/SC/RS · limites IBGE simplificados.</p>
+    <p className="map-focus-note">{t("IMERG 0,1° · células nativas inteiras com interseção em PR/SC/RS · limites IBGE simplificados.")}</p>
   </div>;
 }

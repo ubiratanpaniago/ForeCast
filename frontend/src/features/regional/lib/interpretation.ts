@@ -93,22 +93,22 @@ export function classesFor(indicator: IndicatorId): TrendClass[] {
     : ["increase", "decrease", "no-trend", "insufficient"];
 }
 
-const num = (v: number, d: number) =>
-  v.toLocaleString("pt-BR", { minimumFractionDigits: d, maximumFractionDigits: d });
-export const signed = (v: number, d: number) => `${v > 0 ? "+" : v < 0 ? "−" : "±"}${num(Math.abs(v), d)}`;
-export const formatP = (p: number | null) => (p === null ? "—" : p < 0.001 ? "p < 0,001" : `p = ${num(p, 3)}`);
+const num = (v: number, d: number, locale = "pt-BR") =>
+  v.toLocaleString(locale, { minimumFractionDigits: d, maximumFractionDigits: d });
+export const signed = (v: number, d: number, locale = "pt-BR") => `${v > 0 ? "+" : v < 0 ? "−" : "±"}${num(Math.abs(v), d, locale)}`;
+export const formatP = (p: number | null, locale = "pt-BR") => (p === null ? "—" : p < 0.001 ? `p < ${locale === "en-US" ? "0.001" : "0,001"}` : `p = ${num(p, 3, locale)}`);
 
-export function slopeText(indicator: IndicatorId, s: TrendResult["statistics"]) {
+export function slopeText(indicator: IndicatorId, s: TrendResult["statistics"], locale = "pt-BR", decadeLabel = "década") {
   const info = INDICATOR_INFO[indicator];
   if (s.slopePerDecade === null) return "—";
-  return `${signed(s.slopePerDecade, info.decimals)} ${info.unit}/década`;
+  return `${signed(s.slopePerDecade, info.decimals, locale)} ${info.unit}/${decadeLabel}`;
 }
 
-export function ciText(indicator: IndicatorId, s: TrendResult["statistics"]) {
+export function ciText(indicator: IndicatorId, s: TrendResult["statistics"], locale = "pt-BR", rangeSeparator = "a") {
   const ci = s.confidenceInterval95;
   if (!ci) return "—";
   const d = INDICATOR_INFO[indicator].decimals;
-  return `${signed(ci[0], d)} a ${signed(ci[1], d)}`;
+  return `${signed(ci[0], d, locale)} ${rangeSeparator} ${signed(ci[1], d, locale)}`;
 }
 
 /** Média da série (para expressar a inclinação em % por década). */

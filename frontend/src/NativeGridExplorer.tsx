@@ -12,7 +12,11 @@ import type {
   RegionsGeoJSON,
   TrendResult,
 } from "./types/geography";
+import { useLanguage } from "./i18n/LanguageContext";
+import "./grid-language.css";
 export default function App() {
+  const { language, setLanguage, t } = useLanguage();
+  const locale = language === "pt" ? "pt-BR" : "en-US";
   const [gridId, setGridId] = useState("imerg-monthly-v07");
   const [indicator, setIndicator] = useState<IndicatorId>("PRCP_ANNUAL");
   const [layer, setLayer] = useState<LayerId>("neutral");
@@ -53,12 +57,12 @@ export default function App() {
       ...f,
       properties: {
         id: f.properties.id,
-        name: `Célula ${f.properties.id}`,
+        name: t("Célula {id}").replace("{id}", f.properties.id),
         abbreviation: "",
         annualValue: f.properties.annualValue,
       },
     })),
-  }), [activeCells]);
+  }), [activeCells, t]);
   const values: TrendResult[] = useMemo(() => (activeCells?.features ?? []).flatMap((f) =>
     f.properties.summary
       ? [{ ...f.properties.summary, regionId: f.properties.id, series: [] }]
@@ -100,53 +104,56 @@ export default function App() {
           </span>
         </a>
         <div className="header-layer">
-          {grid?.name ?? "Catálogo de grades"} ·{" "}
-          {grid?.resolutionDegrees ?? "—"}°
+          {grid ? t(grid.name) : t("Catálogo de grades")} ·{" "}
+          {grid?.resolutionDegrees?.toLocaleString(locale) ?? "—"}°
+        </div>
+        <div className="grid-language-switch" role="group" aria-label={t("Idioma")}>
+          <button type="button" aria-label={t("Português")} aria-pressed={language === "pt"} onClick={() => setLanguage("pt")}>PT</button>
+          <button type="button" aria-label={t("English")} aria-pressed={language === "en"} onClick={() => setLanguage("en")}>EN</button>
         </div>
         <span className="mode-badge">
           {grid?.available
-            ? "DADOS REAIS / GRADE NATIVA"
-            : "AGUARDANDO DADOS REAIS"}
+            ? t("DADOS REAIS / GRADE NATIVA")
+            : t("AGUARDANDO DADOS REAIS")}
         </span>
       </header>
       <main className="workspace">
         <aside className="sidebar">
           <div className="intro">
             <div className="eyebrow text-lime-200">
-              OBSERVATÓRIO / CÉLULAS NATIVAS
+              {t("OBSERVATÓRIO / CÉLULAS NATIVAS")}
             </div>
             <h1>
-              Uma célula.
+              {t("Uma célula.")}
               <br />
-              Sua própria história.
+              {t("Sua própria história.")}
             </h1>
             <p>
-              IMERG 0,1° e GLDAS 0,25°, em grades independentes. Estados apenas
-              como contexto geográfico.
+              {t("IMERG 0,1° e GLDAS 0,25°, em grades independentes. Estados apenas como contexto geográfico.")}
             </p>
           </div>
           <section className="query-controls grid-query">
-            <div className="eyebrow">01 / PRODUTO E GRADE</div>
-            <label htmlFor="grid">Produto NASA</label>
+            <div className="eyebrow">{t("01 / PRODUTO E GRADE")}</div>
+            <label htmlFor="grid">{t("Produto NASA")}</label>
             <select
               id="grid"
               value={grid?.id ?? ""}
               onChange={(e) => changeGrid(e.target.value)}
               disabled={!catalog.length}
             >
-              {!catalog.length && <option>Carregando catálogo…</option>}
+              {!catalog.length && <option>{t("Carregando catálogo…")}</option>}
               {catalog.map((g) => (
                 <option key={g.id} value={g.id}>
-                  {g.name} · {g.resolutionDegrees}°
+                  {t(g.name)} · {g.resolutionDegrees.toLocaleString(locale)}°
                 </option>
               ))}
             </select>
             <p className="control-hint">
               {grid?.productId} · v{grid?.version}
               <br />
-              Resolução angular nativa, não resolução constante em km.
+              {t("Resolução angular nativa, não resolução constante em km.")}
             </p>
-            <label htmlFor="indicator">Indicador</label>
+            <label htmlFor="indicator">{t("Indicador")}</label>
             <select
               id="indicator"
               value={activeIndicator}
@@ -158,11 +165,11 @@ export default function App() {
             >
               {(grid?.indicators ?? ["PRCP_ANNUAL"]).map((id) => (
                 <option key={id} value={id}>
-                  {indicators[id].name}
+                  {t(indicators[id].name)}
                 </option>
               ))}
             </select>
-            <label htmlFor="period">Período solicitado</label>
+            <label htmlFor="period">{t("Período solicitado")}</label>
             <select
               id="period"
               value={period}
@@ -174,13 +181,13 @@ export default function App() {
             </select>
             <p className="control-hint">
               {grid?.available
-                ? `Revisão ${grid.revision}`
-                : (grid?.unavailableReason ?? "Verificando disponibilidade.")}
+                ? t("Revisão {revision}").replace("{revision}", grid.revision)
+                : t(grid?.unavailableReason ?? "Verificando disponibilidade.")}
             </p>
           </section>
           <label className="annual-mode">
             <input type="checkbox" checked={annualVisible} onChange={(e) => setAnnualVisible(e.target.checked)} />
-            Colorir pelo valor anual de {end}
+            {t("Colorir pelo valor anual de {year}").replace("{year}", String(end))}
           </label>
           {!annualVisible && <LayerSelector value={layer} onChange={setLayer} />}
           <form
@@ -193,20 +200,20 @@ export default function App() {
               else setSearchError("ID não encontrado na grade carregada.");
             }}
           >
-            <label htmlFor="cell-search">Selecionar pelo ID nativo</label>
+            <label htmlFor="cell-search">{t("Selecionar pelo ID nativo")}</label>
             <div>
               <input
                 id="cell-search"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder="ID fornecido pelo pipeline"
+                placeholder={t("ID fornecido pelo pipeline")}
                 disabled={!activeCells?.features.length}
               />
               <button disabled={!activeCells?.features.length}>
-                Selecionar
+                {t("Selecionar")}
               </button>
             </div>
-            {searchError && <p role="alert">{searchError}</p>}
+            {searchError && <p role="alert">{t(searchError)}</p>}
           </form>
           <GridCellPanel
             cell={selected}
@@ -217,10 +224,10 @@ export default function App() {
             layer={layer}
           />
           <div className="sidebar-foot">
-            NASA SPACE APPS <span>GRADES REAIS / API</span>
+            NASA SPACE APPS <span>{t("GRADES REAIS / API")}</span>
           </div>
         </aside>
-        <section className="map-area" aria-label="Exploração das grades">
+        <section className="map-area" aria-label={t("Exploração das grades")}>
           <ClimateMap
             contextRegions={context}
             regions={mapRegions}
@@ -234,54 +241,51 @@ export default function App() {
           <div className="map-top-info">
             <div>
               <span className="eyebrow">PR / SC / RS · WGS84</span>
-              <h2>Região Sul</h2>
+              <h2>{t("Região Sul")}</h2>
             </div>
             <span className="territory-count">
-              {activeCells?.features.length ?? 0}
-              <small>CÉLULAS CARREGADAS</small>
+              {(activeCells?.features.length ?? 0).toLocaleString(locale)}
+              <small>{t("CÉLULAS CARREGADAS")}</small>
             </span>
           </div>
           {!grid?.available && catalogStatus === "ready" && (
             <div className="grid-empty" role="status">
-              <span className="eyebrow">GRADE AINDA NÃO ENTREGUE</span>
-              <h3>{grid?.name ?? "Nenhuma grade disponível"}</h3>
+              <span className="eyebrow">{t("GRADE AINDA NÃO ENTREGUE")}</span>
+              <h3>{grid ? t(grid.name) : t("Nenhuma grade disponível")}</h3>
               <p>
-                {grid?.unavailableReason ?? "Aguardando dados do pipeline."}
+                {t(grid?.unavailableReason ?? "Aguardando dados do pipeline.")}
               </p>
               <p>
-                Somente os limites reais do IBGE estão visíveis. Não há células
-                ou valores científicos simulados.
+                {t("Somente os limites reais do IBGE estão visíveis. Não há células ou valores científicos simulados.")}
               </p>
             </div>
           )}
           <div className="map-footer">
-            {annualVisible ? <div className="annual-legend" aria-label="Legenda dos valores anuais">
-              <strong>{indicators[activeIndicator].name} · {end}</strong>
+            {annualVisible ? <div className="annual-legend" aria-label={t("Legenda dos valores anuais")}>
+              <strong>{t(indicators[activeIndicator].name)} · {end}</strong>
               <div className="annual-gradient" />
-              <span>0 — ≥{annualMaximum.toLocaleString("pt-BR")} {indicators[activeIndicator].unit}</span>
-              <small>Cinza: ano sem dados completos</small>
+              <span>0 — ≥{annualMaximum.toLocaleString(locale)} {indicators[activeIndicator].unit}</span>
+              <small>{t("Cinza: ano sem dados completos")}</small>
             </div> : <MapLegend layer={layer} indicator={activeIndicator} />}
             <p className="scientific-note">
               {layer === "neutral"
-                ? "Divisões geográficas = limites das células, quando disponíveis. "
+                ? t("Divisões geográficas = limites das células, quando disponíveis. ")
                 : ""}
-              {annualVisible ? "Cor = valor anual, sem teste de tendência. " : "Células sem análise ficam neutras. "}Contorno estadual não
-              representa tendência. Não há interpolação entre grades nem
-              classificação de risco de inundação.
+              {annualVisible ? t("Cor = valor anual, sem teste de tendência. ") : t("Células sem análise ficam neutras. ")}{t("Contorno estadual não representa tendência. Não há interpolação entre grades nem classificação de risco de inundação.")}
             </p>
           </div>
           <div className="data-status" role="status">
             {catalogError || error ? (
               <>
-                {catalogError || error}{" "}
+                {t(catalogError || error)}{" "}
                 <button onClick={() => setRetry((v) => v + 1)}>
-                  Tentar novamente
+                  {t("Tentar novamente")}
                 </button>
               </>
             ) : catalogStatus === "loading" || status === "loading" ? (
-              "Carregando catálogo e geometrias…"
+              t("Carregando catálogo e geometrias…")
             ) : (
-              `${gridApiMode ? "API" : "Arquivos locais"} · ${grid?.available ? "grade real disponível" : "pipeline ainda não executado"} · séries sob demanda`
+              `${gridApiMode ? "API" : t("Arquivos locais")} · ${grid?.available ? t("grade real disponível") : t("pipeline ainda não executado")} · ${t("séries sob demanda")}`
             )}
           </div>
         </section>

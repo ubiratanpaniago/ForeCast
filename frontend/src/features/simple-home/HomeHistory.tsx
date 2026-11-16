@@ -1,5 +1,6 @@
 import type { MonthlyManifest } from "../dossier/services/monthlyApi";
 import { useHomeHistory, type HomePoint } from "./useHomeHistory";
+import { useLanguage } from "../../i18n/LanguageContext";
 
 function seriesPath(points: HomePoint[], field: "value" | "reference", max: number) {
   let path = "", connected = false;
@@ -14,17 +15,18 @@ function seriesPath(points: HomePoint[], field: "value" | "reference", max: numb
 export function HomeHistory({ manifest, cellId, month, location = "local escolhido no mapa" }: {
   manifest: MonthlyManifest | null; cellId: string | null; month: string; location: string;
 }) {
+  const { t, language } = useLanguage();
   const { points, error, retry } = useHomeHistory(manifest, cellId);
   const max = points ? Math.max(1, ...points.flatMap(p => [p.value ?? 0, p.reference ?? 0])) : 1;
   const cursor = points?.findIndex(p => p.t === month) ?? -1;
   return <section className="home-history" aria-labelledby="home-history-title">
-    <div className="home-section-heading"><h2 id="home-history-title">Como a chuva mudou</h2><span>2001 a 2024</span></div>
-    <p>{cellId ? `Histórico mensal de chuva em ${location}.` : "Histórico das áreas do Sul mostradas no mapa."}</p>
-    {error ? <div className="home-chart-message" role="alert">{error} <button onClick={retry}>Tentar novamente</button></div>
-      : !points ? <div className="home-chart-message" role="status">Carregando a história das chuvas…</div>
+    <div className="home-section-heading"><h2 id="home-history-title">{t("Como a chuva mudou")}</h2><span>2001–2024</span></div>
+    <p>{cellId ? `${t("Histórico mensal de chuva em ")}${location}.` : t("Histórico das áreas do Sul mostradas no mapa.")}</p>
+    {error ? <div className="home-chart-message" role="alert">{t(error)} <button onClick={retry}>{t("Tentar novamente")}</button></div>
+      : !points ? <div className="home-chart-message" role="status">{t("Carregando a história das chuvas…")}</div>
       : <>
         <svg className="home-history-chart" viewBox="0 0 700 205" preserveAspectRatio="none" role="img"
-          aria-label={`Chuva mensal de 2001 a 2024. Linha contínua: chuva registrada. Linha tracejada: média histórica. Escala de zero a ${Math.ceil(max)} milímetros.`}>
+          aria-label={language === "en" ? `Monthly rainfall from 2001 to 2024. Solid line: recorded rainfall. Dashed line: historical average. Scale from zero to ${Math.ceil(max)} millimeters.` : `Chuva mensal de 2001 a 2024. Linha contínua: chuva registrada. Linha tracejada: média histórica. Escala de zero a ${Math.ceil(max)} milímetros.`}>
           <line x1={28} x2={672} y1={170} y2={170} stroke="var(--rule)" />
           <line x1={28} x2={672} y1={96} y2={96} stroke="var(--rule)" strokeDasharray="3 5" />
           <path d={seriesPath(points, "reference", max)} fill="none" stroke="var(--muted)" strokeDasharray="5 4" strokeWidth={1.5} />
@@ -34,7 +36,7 @@ export function HomeHistory({ manifest, cellId, month, location = "local escolhi
           <text x={28} y={198}>2001</text><text x={624} y={198}>2024</text>
           <text x={28} y={15}>{Math.ceil(max)} mm</text>
         </svg>
-        <div className="home-chart-key"><span><i className="home-key-rain" /> Chuva registrada</span><span><i className="home-key-average" /> Média histórica</span></div>
+        <div className="home-chart-key"><span><i className="home-key-rain" /> {t("Chuva registrada")}</span><span><i className="home-key-average" /> {t("Média histórica")}</span></div>
       </>}
   </section>;
 }

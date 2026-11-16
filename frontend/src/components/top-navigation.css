@@ -44,4 +44,8 @@
 .site-nav .site-nav-outline:hover { background: var(--accent); color: white; }
 .site-nav .site-nav-primary { background: var(--accent); color: white; }
 .site-nav .site-nav-primary:hover { background: #a9380b; border-color: #a9380b; }
+.site-language { display: inline-flex; align-items: center; gap: 3px; margin-left: 3px; padding: 3px; border: 1px solid color-mix(in srgb, var(--paper) 45%, transparent); }
+.site-language button { min-width: 34px; min-height: 32px; padding: 4px 7px; border: 0; border-radius: 1px; background: transparent; color: var(--paper-2); font: 700 12px/1 var(--sans); cursor: pointer; }
+.site-language button[aria-pressed="true"] { background: var(--paper); color: var(--ink); }
+.site-language button:hover:not([aria-pressed="true"]) { color: var(--paper); background: color-mix(in srgb, var(--paper) 12%, transparent); }
 .site-header :focus-visible { outline: 3px solid white; outline-offset: 3px; }

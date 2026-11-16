@@ -11,14 +11,20 @@ export function rainSummary(values: Array<number | null>, reference: Array<numbe
   });
   return { value: count ? total / count : null, reference: count ? normal / count : null, count };
 }
-export function fullMonth(t: string) {
+export function fullMonth(t: string, locale = "pt-BR") {
   const [year, month] = t.split("-").map(Number);
-  const label = new Date(Date.UTC(year, month - 1, 1)).toLocaleDateString("pt-BR", {
+  const label = new Date(Date.UTC(year, month - 1, 1)).toLocaleDateString(locale, {
     month: "long", year: "numeric", timeZone: "UTC",
   });
-  return label.charAt(0).toUpperCase() + label.slice(1);
+  return locale === "pt-BR" ? label.charAt(0).toUpperCase() + label.slice(1) : label;
 }
-export function rainDescription(anomaly: number | null) {
+export function rainDescription(anomaly: number | null, locale = "pt-BR") {
+  if (locale === "en-US") {
+    if (anomaly === null) return "Comparison unavailable";
+    if (anomaly === 0) return "Rainfall matches the historical average";
+    const amount = Math.abs(anomaly).toLocaleString(locale, { maximumFractionDigits: 1 });
+    return `${amount}% ${anomaly > 0 ? "more" : "less"} rain than usual`;
+  }
   if (anomaly === null) return "Comparação indisponível";
   if (anomaly === 0) return "Chuva igual à média histórica";
   const amount = Math.abs(anomaly).toLocaleString("pt-BR", { maximumFractionDigits: 1 });

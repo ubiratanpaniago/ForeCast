@@ -19,6 +19,7 @@ import { valueColor, evidenceOf } from "./MapLayers";
 import { MapControls } from "./MapControls";
 import { RegionTooltip } from "./RegionTooltip";
 import { annualColor } from "../../lib/annualColor";
+import { useLanguage } from "../../i18n/LanguageContext";
 const bounds: [[number, number], [number, number]] = [
   [-58, -34],
   [-47, -22],
@@ -43,6 +44,7 @@ export function ClimateMap({
   onRegionSelect,
   annualMaximum,
 }: Props) {
+  const { language, t } = useLanguage();
   const container = useRef<HTMLDivElement>(null);
   const map = useRef<MapInstance | null>(null);
   const onSelect = useRef(onRegionSelect);
@@ -90,7 +92,7 @@ export function ClimateMap({
     );
     instance.addControl(
       new AttributionControl({
-        customAttribution: "Limites: IBGE · malha simplificada",
+        customAttribution: language === "pt" ? "Limites: IBGE · malha simplificada" : "Boundaries: IBGE · simplified mesh",
         compact: false,
       }),
       "bottom-right",
@@ -194,7 +196,7 @@ export function ClimateMap({
       map.current = null;
       setReady(false);
     };
-  }, []);
+  }, [language]);
   useEffect(() => {
     if (ready)
       (
@@ -230,25 +232,31 @@ export function ClimateMap({
         selectedRegionId ?? "",
       ]);
   }, [ready, selectedRegionId]);
+  const mapErrorLabel = mapError.startsWith("Não foi possível renderizar uma camada cartográfica: ")
+    ? t("Não foi possível renderizar uma camada cartográfica: {error}").replace(
+        "{error}",
+        mapError.slice("Não foi possível renderizar uma camada cartográfica: ".length),
+      )
+    : t(mapError);
   return (
     <div className="map-stage">
       <div
         ref={container}
         className="map-canvas"
         role="region"
-        aria-label="Mapa de células das grades nativas da NASA; limites estaduais como contexto"
+        aria-label={t("Mapa de células das grades nativas da NASA; limites estaduais como contexto")}
       />
       <div className="map-caption">
-        <span className="status-dot" /> SUL DO BRASIL{" "}
+        <span className="status-dot" /> {t("SUL DO BRASIL")} {" "}
         <small>PR / SC / RS</small>
       </div>
       <div className="map-orientation" aria-hidden="true">
         N<br />↑
       </div>
       <div className="ocean-label" aria-hidden="true">
-        OCEANO
+        {t("OCEANO")}
         <br />
-        ATLÂNTICO
+        {t("ATLÂNTICO")}
       </div>
       <MapControls
         onReset={() =>
@@ -264,11 +272,11 @@ export function ClimateMap({
       {tooltip && <RegionTooltip {...tooltip} />}
       {mapError && (
         <div className="map-error" role="alert">
-          {mapError}
+          {mapErrorLabel}
         </div>
       )}
       <div className="map-bottom-note">
-        PROJEÇÃO MERCATOR <span>WGS 84 / EPSG:3857</span>
+        {t("PROJEÇÃO MERCATOR")} <span>WGS 84 / EPSG:3857</span>
       </div>
     </div>
   );
