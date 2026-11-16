@@ -2,6 +2,7 @@ import type { GridDefinition, GridCells, CellDetail } from "../types/grid";
 import { studyBounds } from "../types/grid";
 import type { IndicatorId, Period, RegionsGeoJSON } from "../types/geography";
 import { parseTrendResult } from "./trendContract";
+import { apiFetch } from "./apiFetch";
 import { indicators } from "../components/Map/MapLayers";
 export const gridApiMode = import.meta.env.VITE_GRID_MODE !== "local";
 const base = (
@@ -11,9 +12,7 @@ export async function gridRequest(
   url: string,
   signal: AbortSignal,
 ): Promise<unknown> {
-  const response = await fetch(url, {
-    signal: AbortSignal.any([signal, AbortSignal.timeout(15000)]),
-  });
+  const response = await apiFetch(url, { signal, timeoutMs: 15000 });
   if (!response.ok)
     throw new Error(
       `Dados indisponíveis (HTTP ${response.status}). Nenhuma grade sintética foi usada.`,

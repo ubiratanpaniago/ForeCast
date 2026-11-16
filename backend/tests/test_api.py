@@ -117,3 +117,12 @@ def test_atomic_publisher_preserves_previous_file_on_invalid_input(data_path, tm
     with pytest.raises(ValidationError):
         publish(data_path, target)
     assert target.read_bytes() == before
+
+
+def test_cors_origin_regex_allows_preview_deploys(data_path):
+    settings = Settings(data_path, ('https://forecast.pages.dev',), cors_origin_regex=r'https://[a-z0-9-]+\.forecast\.pages\.dev')
+    with TestClient(create_app(settings)) as client:
+        preview = 'https://traducao.forecast.pages.dev'
+        assert client.get('/api/health', headers={'Origin': preview}).headers['access-control-allow-origin'] == preview
+        assert client.get('/api/health', headers={'Origin': 'https://forecast.pages.dev'}).headers['access-control-allow-origin'] == 'https://forecast.pages.dev'
+        assert 'access-control-allow-origin' not in client.get('/api/health', headers={'Origin': 'https://evil.pages.dev'}).headers

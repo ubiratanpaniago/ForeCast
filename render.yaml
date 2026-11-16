@@ -1,0 +1,25 @@
+# Blueprint do Render para a API do ForeCast. Guia: docs/deploy.md
+services:
+  - type: web
+    name: forecast-api
+    runtime: python
+    plan: free
+    region: virginia
+    rootDir: backend
+    buildCommand: pip install -r requirements-api.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/health
+    # Publica de novo a cada push na main. Desligue durante a avaliação se preferir
+    # controlar os deploys manualmente (Settings > Build & Deploy > Auto-Deploy).
+    autoDeploy: true
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.8
+      # URL de produção do frontend, sem barra no final (ex.: https://forecast.pages.dev).
+      # O Render pede o valor ao criar o serviço.
+      - key: FORECAST_CORS_ORIGINS
+        sync: false
+      # Libera os links de pré-visualização por branch do Cloudflare Pages.
+      # Troque "forecast" pelo nome do projeto no Cloudflare, se for diferente.
+      - key: FORECAST_CORS_ORIGIN_REGEX
+        value: https://[a-z0-9-]+\.forecast\.pages\.dev

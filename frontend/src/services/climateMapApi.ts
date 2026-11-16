@@ -1,14 +1,13 @@
 import type { TrendResult, MapQuery, RegionsGeoJSON } from "../types/geography";
 import { mockClimateData } from "../data/mockClimateData";
 import { parseTrendResult } from "./trendContract";
+import { apiFetch } from "./apiFetch";
 export const isMockMode = import.meta.env.VITE_DATA_MODE !== "api";
 const baseUrl = (
   import.meta.env.VITE_API_BASE_URL || "http://localhost:8000"
 ).replace(/\/$/, "");
 async function request(url: string, signal: AbortSignal): Promise<unknown> {
-  const response = await fetch(url, {
-    signal: AbortSignal.any([signal, AbortSignal.timeout(12000)]),
-  });
+  const response = await apiFetch(url, { signal, timeoutMs: 12000 });
   if (!response.ok)
     throw new Error(`Fonte indisponível (HTTP ${response.status}).`);
   return response.json();

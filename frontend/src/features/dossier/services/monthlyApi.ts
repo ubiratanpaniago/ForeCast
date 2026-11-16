@@ -1,3 +1,5 @@
+import { apiFetch } from "../../../services/apiFetch";
+
 export interface MonthlyManifest {
   schemaVersion: number;
   gridId: string;
@@ -36,7 +38,7 @@ export function monthLabel(t: string) {
   return new Date(Date.UTC(year, month-1, 1)).toLocaleDateString("pt-BR", { month:"short", year:"numeric", timeZone:"UTC" });
 }
 async function request(url: string, signal: AbortSignal): Promise<unknown> {
-  const result = await fetch(url, {signal:AbortSignal.any([signal, AbortSignal.timeout(20000)])});
+  const result = await apiFetch(url, { signal, timeoutMs: 20000 });
   if (!result.ok) {
     const error = await result.json().catch(() => null);
     throw new Error(error?.error?.message || `Chuva mensal indisponível (HTTP ${result.status}).`);

@@ -13,6 +13,9 @@ class Settings:
     regions_path: Path = BACKEND_ROOT / 'data/derived/regions'
     infrastructure_path: Path = BACKEND_ROOT / 'data/derived/infrastructure'
     monthly_path: Path = BACKEND_ROOT / 'data/derived/monthly-rainfall'
+    # Expressão regular opcional para origens extras, por exemplo os links de
+    # pré-visualização por branch do Cloudflare Pages (https://<hash>.<projeto>.pages.dev).
+    cors_origin_regex: str | None = None
 
     @classmethod
     def from_env(cls):
@@ -34,4 +37,5 @@ class Settings:
         monthly = Path(os.getenv('FORECAST_MONTHLY_PATH', 'data/derived/monthly-rainfall'))
         if not monthly.is_absolute():
             monthly = BACKEND_ROOT / monthly
-        return cls(path.resolve(), origins, grids.resolve(), regions.resolve(), infra.resolve(), monthly.resolve())
+        origin_regex = os.getenv('FORECAST_CORS_ORIGIN_REGEX', '').strip() or None
+        return cls(path.resolve(), origins, grids.resolve(), regions.resolve(), infra.resolve(), monthly.resolve(), origin_regex)

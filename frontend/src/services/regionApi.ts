@@ -5,6 +5,7 @@
 // (estatística de todas as regiões, sem séries); a série completa só da região pedida.
 import type { IndicatorId, Period, RegionsGeoJSON, TrendResult } from "../types/geography";
 import { parseTrendResult } from "./trendContract";
+import { apiFetch } from "./apiFetch";
 
 export interface RegionInfo {
   id: string;
@@ -50,7 +51,7 @@ function get(path: string): Promise<unknown> {
   const url = `${base()}${path}`;
   let hit = cache.get(url);
   if (!hit) {
-    hit = fetch(url, { signal: AbortSignal.timeout(15000) })
+    hit = apiFetch(url, { timeoutMs: 15000 })
       .catch(() => {
         throw new RegionApiError(0, "NETWORK", "API indisponível. Verifique se o backend está rodando.");
       })

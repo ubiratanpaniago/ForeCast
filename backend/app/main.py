@@ -31,7 +31,7 @@ def create_app(settings: Settings | None = None):
 
     app = FastAPI(title='ForeCast API', version='0.2.0', lifespan=lifespan)
     app.add_middleware(GZipMiddleware, minimum_size=1000, compresslevel=1)
-    app.add_middleware(CORSMiddleware, allow_origins=list(settings.cors_origins), allow_methods=['GET'], allow_headers=['If-None-Match'], expose_headers=['ETag', 'X-Data-Generated'])
+    app.add_middleware(CORSMiddleware, allow_origins=list(settings.cors_origins), allow_origin_regex=settings.cors_origin_regex, allow_methods=['GET'], allow_headers=['If-None-Match'], expose_headers=['ETag', 'X-Data-Generated'])
 
     @app.exception_handler(DataError)
     async def data_error(request: Request, error: DataError):

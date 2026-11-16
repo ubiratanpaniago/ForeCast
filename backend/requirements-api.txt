@@ -1,0 +1,5 @@
+# Somente o necessário para servir a API em produção (Render).
+# A API lê os JSON já gerados em data/derived e não usa o pipeline científico
+# (requirements.txt), que é pesado demais para o plano gratuito.
+fastapi>=0.115,<1
+uvicorn>=0.30,<1

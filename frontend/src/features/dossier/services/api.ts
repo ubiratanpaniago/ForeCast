@@ -1,5 +1,6 @@
 import type { Snapshot } from "../types/climate";
 import { parseSnapshot } from "./snapshotContract";
+import { apiFetch } from "../../../services/apiFetch";
 
 export const snapshotMode =
   import.meta.env.VITE_SNAPSHOT_MODE === "static" ? "static" : "api";
@@ -10,10 +11,7 @@ const SNAPSHOT_URL =
   snapshotMode === "static" ? "/data/snapshot.json" : `${baseUrl}/api/snapshot`;
 
 export async function fetchSnapshot(signal?: AbortSignal): Promise<Snapshot> {
-  const timeout = AbortSignal.timeout(15000);
-  const res = await fetch(SNAPSHOT_URL, {
-    signal: signal ? AbortSignal.any([signal, timeout]) : timeout,
-  });
+  const res = await apiFetch(SNAPSHOT_URL, { signal, timeoutMs: 15000 });
   if (!res.ok) {
     const body = await res.json().catch(() => null);
     throw new Error(
