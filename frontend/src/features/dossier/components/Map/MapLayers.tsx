@@ -6,6 +6,7 @@ import {
   TOTAL_RANGE,
   TOTAL_STOPS,
 } from "../../lib/color";
+import { useLanguage } from "../../../../i18n/LanguageContext";
 
 type BBox = Snapshot["meta"]["bbox"];
 
@@ -97,6 +98,7 @@ export function GraticuleLabels({
   bbox: BBox;
   step?: number;
 }) {
+  const { language } = useLanguage();
   const w = bbox.east - bbox.west;
   const h = bbox.north - bbox.south;
   const lons: number[] = [];
@@ -113,7 +115,7 @@ export function GraticuleLabels({
           className="map-tick map-tick--lon"
           style={{ left: `${((x - bbox.west) / w) * 100}%` }}
         >
-          {Math.abs(x)}°W
+          {Math.abs(x)}°{language === "pt" ? "O" : "W"}
         </span>
       ))}
       {lats.map((y) => (
@@ -130,10 +132,11 @@ export function GraticuleLabels({
 }
 
 export function Legend({ mode }: { mode: MapMode }) {
+  const { t } = useLanguage();
   const stops = mode === "anomaly" ? ANOMALY_STOPS : TOTAL_STOPS;
   const labels =
     mode === "anomaly"
-      ? [`−${ANOMALY_RANGE}%`, "média", `+${ANOMALY_RANGE}%`]
+      ? [`−${ANOMALY_RANGE}%`, t("média"), `+${ANOMALY_RANGE}%`]
       : [
           `${TOTAL_RANGE[0]} mm`,
           `${(TOTAL_RANGE[0] + TOTAL_RANGE[1]) / 2} mm`,
@@ -151,8 +154,7 @@ export function Legend({ mode }: { mode: MapMode }) {
         ))}
       </div>
       <div className="legend-ocean">
-        <span className="legend-swatch" /> fora da máscara de validade GLDAS
-        (não é limite estadual)
+        <span className="legend-swatch" /> {t("fora da máscara de validade GLDAS (não é limite estadual)")}
       </div>
     </div>
   );

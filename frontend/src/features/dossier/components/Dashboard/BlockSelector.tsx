@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { Snapshot } from "../../types/climate";
+import { useLanguage } from "../../../../i18n/LanguageContext";
 export function BlockSelector({
   data,
   selected,
@@ -11,15 +12,16 @@ export function BlockSelector({
   onSelect: (ij: [number, number]) => void;
   onClear: () => void;
 }) {
+  const { t } = useLanguage();
   const [row, setRow] = useState("1"),
     [column, setColumn] = useState("1");
   return (
     <div className="block-selector">
-      <p className="eyebrow">Seleção persistente · bloco agregado</p>
+      <p className="eyebrow">{t("Seleção persistente · bloco agregado")}</p>
       <p>
         {selected
-          ? `Bloco fixado: linha ${selected[0] + 1}, coluna ${selected[1] + 1}. Permanece selecionado ao trocar o ano.`
-          : "Clique ou toque no mapa, use as setas e Enter, ou escolha os índices abaixo."}
+          ? t("Bloco fixado: linha {row}, coluna {column}. Permanece selecionado ao trocar o ano.").replace("{row}", String(selected[0] + 1)).replace("{column}", String(selected[1] + 1))
+          : t("Clique ou toque no mapa, use as setas e Enter, ou escolha os índices abaixo.")}
       </p>
       <form
         onSubmit={(e) => {
@@ -38,7 +40,7 @@ export function BlockSelector({
         }}
       >
         <label>
-          Linha (1–{data.grid.lat.length})
+          {t("Linha (1–{count})").replace("{count}", String(data.grid.lat.length))}
           <input
             type="number"
             min={1}
@@ -50,7 +52,7 @@ export function BlockSelector({
           />
         </label>
         <label>
-          Coluna (1–{data.grid.lon.length})
+          {t("Coluna (1–{count})").replace("{count}", String(data.grid.lon.length))}
           <input
             type="number"
             min={1}
@@ -61,16 +63,15 @@ export function BlockSelector({
             onChange={(e) => setColumn(e.target.value)}
           />
         </label>
-        <button>Fixar bloco</button>
+        <button>{t("Fixar bloco")}</button>
         {selected && (
           <button type="button" onClick={onClear}>
-            Limpar
+            {t("Limpar")}
           </button>
         )}
       </form>
       <small>
-        Índices locais deste snapshot de {data.grid.res}°. Não são IDs de
-        células nativas da NASA.
+        {t("Índices locais deste snapshot de {resolution}°. Não são IDs de células nativas da NASA.").replace("{resolution}", String(data.grid.res))}
       </small>
     </div>
   );

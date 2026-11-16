@@ -1,15 +1,18 @@
 import type { Snapshot } from "../../types/climate";
 import { monthlyCoverage } from "../../lib/comparison";
+import { useLanguage } from "../../../../i18n/LanguageContext";
 export function DataCoverage({ data }: { data: Snapshot }) {
+  const { language, t } = useLanguage();
+  const locale = language === "pt" ? "pt-BR" : "en-US";
   const expected = data.years.length * 12;
   return (
     <section
       className="exhibit data-coverage"
-      aria-label="Fontes e cobertura dos dados"
+      aria-label={t("Fontes e cobertura dos dados")}
     >
       <div className="exhibit-head">
-        <p className="exhibit-tag">Dados</p>
-        <h2>O que sustenta esta leitura.</h2>
+        <p className="exhibit-tag">{t("Dados")}</p>
+        <h2>{t("O que sustenta esta leitura.")}</h2>
       </div>
       <div className="coverage-cards">
         {(
@@ -17,16 +20,14 @@ export function DataCoverage({ data }: { data: Snapshot }) {
             {
               key: "precipitation",
               source: "imerg_monthly",
-              title: "Precipitação · IMERG",
-              description:
-                "Taxas convertidas pelo exportador para acumulados mensais. Mapa anual agregado em blocos 0,2°.",
+              title: t("Precipitação · IMERG"),
+              description: t("Taxas convertidas pelo exportador para acumulados mensais. Mapa anual agregado em blocos 0,2°."),
             },
             {
               key: "soilMoisture",
               source: "gldas_monthly",
-              title: "Umidade superficial · GLDAS",
-              description:
-                "Estado simulado de umidade a 0–10 cm. Série mensal regional; não corresponde a cada bloco IMERG.",
+              title: t("Umidade superficial · GLDAS"),
+              description: t("Estado simulado de umidade a 0–10 cm. Série mensal regional; não corresponde a cada bloco IMERG."),
             },
           ] as const
         ).map((item) => {
@@ -42,20 +43,20 @@ export function DataCoverage({ data }: { data: Snapshot }) {
               </p>
               <p>
                 {valid === expected
-                  ? "Cobertura mensal completa no snapshot."
-                  : "Cobertura parcial; meses ausentes não são zero."}
+                  ? t("Cobertura mensal completa no snapshot.")
+                  : t("Cobertura parcial; meses ausentes não são zero.")}
               </p>
               <dl>
-                <dt>Produto</dt>
-                <dd>{source?.product ?? "Não informado"}</dd>
-                <dt>Variável</dt>
-                <dd>{source?.variable ?? "Não informada"}</dd>
-                <dt>Unidade</dt>
-                <dd>{source?.unit ?? "Não informada"}</dd>
+                <dt>{t("Produto")}</dt>
+                <dd>{source?.product ?? t("Não informado")}</dd>
+                <dt>{t("Variável")}</dt>
+                <dd>{source?.variable ?? t("Não informada")}</dd>
+                <dt>{t("Unidade")}</dt>
+                <dd>{source?.unit ?? t("Não informada")}</dd>
               </dl>
               <p>{item.description}</p>
               <details>
-                <summary>Conferir cobertura por ano</summary>
+                <summary>{t("Conferir cobertura por ano")}</summary>
                 <ul className="coverage-years">
                   {coverage.map((y) => (
                     <li key={y.year}>
@@ -70,10 +71,7 @@ export function DataCoverage({ data }: { data: Snapshot }) {
         })}
       </div>
       <p className="coverage-disclaimer">
-        Cobertura conta meses presentes no snapshot, não certifica qualidade
-        espacial, completude dos arquivos de origem ou validade estatística. O
-        recorte usa máscara de validade GLDAS, sem máscara estadual. Gerado em{" "}
-        {new Date(data.meta.generated).toLocaleString("pt-BR")}.
+        {t("Cobertura conta meses presentes no snapshot, não certifica qualidade espacial, completude dos arquivos de origem ou validade estatística. O recorte usa máscara de validade GLDAS, sem máscara estadual. Gerado em {date}.").replace("{date}", new Date(data.meta.generated).toLocaleString(locale))}
       </p>
     </section>
   );

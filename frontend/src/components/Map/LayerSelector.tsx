@@ -1,5 +1,6 @@
 import { layerNames } from "./MapLayers";
 import type { LayerId } from "../../types/geography";
+import { useLanguage } from "../../i18n/LanguageContext";
 export function LayerSelector({
   value,
   onChange,
@@ -7,9 +8,10 @@ export function LayerSelector({
   value: LayerId;
   onChange: (layer: LayerId) => void;
 }) {
+  const { t } = useLanguage();
   return (
     <fieldset className="layer-selector">
-      <legend className="eyebrow">01 / CAMADA DE ANÁLISE</legend>
+      <legend className="eyebrow">{t("01 / CAMADA DE ANÁLISE")}</legend>
       {(Object.keys(layerNames) as LayerId[]).map((layer, i) => (
         <label
           key={layer}
@@ -23,7 +25,7 @@ export function LayerSelector({
             onChange={() => onChange(layer)}
           />
           <span className="layer-index">0{i + 1}</span>
-          <span>{layerNames[layer]}</span>
+          <span>{t(layerNames[layer])}</span>
           <span className="radio-mark" />
         </label>
       ))}

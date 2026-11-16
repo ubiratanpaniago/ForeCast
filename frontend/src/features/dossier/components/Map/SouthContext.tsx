@@ -1,6 +1,7 @@
 import { useEffect, useId, useState } from "react";
 import type { RegionsGeoJSON } from "../../../../types/geography";
 import type { Snapshot } from "../../types/climate";
+import { useLanguage } from "../../../../i18n/LanguageContext";
 
 export function SouthContext({
   bbox,
@@ -9,6 +10,7 @@ export function SouthContext({
   bbox: Snapshot["meta"]["bbox"];
   highlight: boolean;
 }) {
+  const { t } = useLanguage();
   const [regions, setRegions] = useState<RegionsGeoJSON | null>(null);
   const [failed, setFailed] = useState(false);
   const maskId = useId().replace(/:/g, "");
@@ -34,7 +36,7 @@ export function SouthContext({
         y={-bbox.north + 0.4}
         className="state-load-error"
       >
-        Limites IBGE indisponíveis
+        {t("Limites IBGE indisponíveis")}
       </text>
     ) : null;
   const paths = regions.features.map((feature) => {

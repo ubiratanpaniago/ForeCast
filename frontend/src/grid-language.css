@@ -1,0 +1,28 @@
+.grid-language-switch {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 3px;
+  padding: 3px;
+  border: 1px solid #46543a;
+}
+
+.grid-language-switch button {
+  min-width: 34px;
+  min-height: 32px;
+  padding: 4px 7px;
+  color: #b1baaf;
+  background: transparent;
+  border: 1px solid transparent;
+  font: 700 11px/1 Inter, "Segoe UI", sans-serif;
+  cursor: pointer;
+}
+
+.grid-language-switch button[aria-pressed="true"] {
+  color: #101513;
+  background: #d0f78a;
+}
+
+.grid-language-switch button:focus-visible {
+  outline: 2px solid #d0f78a;
+  outline-offset: 2px;
+}

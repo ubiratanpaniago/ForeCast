@@ -1,4 +1,5 @@
 import type { useTemporalPlayback } from "../hooks/useTemporalPlayback";
+import { useLanguage } from "../../../i18n/LanguageContext";
 type Playback = ReturnType<typeof useTemporalPlayback>;
 export function TemporalPlayer({
   years,
@@ -9,12 +10,13 @@ export function TemporalPlayer({
   year: number;
   playback: Playback;
 }) {
+  const { language, t } = useLanguage();
   const index = years.indexOf(year);
   return (
     <div
       className="temporal-player"
       role="group"
-      aria-label="Animação temporal anual"
+      aria-label={t("Animação temporal anual")}
     >
       <div className="player-main">
         <button
@@ -24,35 +26,35 @@ export function TemporalPlayer({
           disabled={years.length < 2}
         >
           <span aria-hidden="true">{playback.playing ? "Ⅱ" : "▶"}</span>
-          {playback.playing ? "Pausar" : "Reproduzir"}
+          {playback.playing ? t("Pausar") : t("Reproduzir")}
         </button>
         <button
           className="step-button"
           onClick={() => playback.selectYear(years[index - 1])}
           disabled={index <= 0}
-          aria-label="Ano anterior"
+          aria-label={t("Ano anterior")}
         >
           ‹
         </button>
-        <output className="player-year" aria-label="Ano exibido">
+        <output className="player-year" aria-label={t("Ano exibido")}>
           {year}
         </output>
         <button
           className="step-button"
           onClick={() => playback.selectYear(years[index + 1])}
           disabled={index >= years.length - 1}
-          aria-label="Próximo ano"
+          aria-label={t("Próximo ano")}
         >
           ›
         </button>
         <label className="player-speed">
-          Velocidade
+          {t("Velocidade")}
           <select
-            aria-label="Velocidade da animação"
+            aria-label={t("Velocidade da animação")}
             value={playback.speed}
             onChange={(e) => playback.setSpeed(Number(e.target.value))}
           >
-            <option value={0.5}>0,5×</option>
+            <option value={0.5}>{language === "pt" ? "0,5×" : "0.5×"}</option>
             <option value={1}>1×</option>
             <option value={2}>2×</option>
           </select>
@@ -63,7 +65,7 @@ export function TemporalPlayer({
             checked={playback.loop}
             onChange={(e) => playback.setLoop(e.target.checked)}
           />
-          Repetir
+          {t("Repetir")}
         </label>
       </div>
       <div className="player-track">
@@ -75,14 +77,13 @@ export function TemporalPlayer({
           step={1}
           value={index}
           onChange={(e) => playback.selectYear(years[Number(e.target.value)])}
-          aria-label="Selecionar ano da animação"
+          aria-label={t("Selecionar ano da animação")}
           aria-valuetext={String(year)}
         />
         <span>{years[years.length - 1]}</span>
       </div>
       <p>
-        Um quadro por ano · chuva e anomalia usam o mesmo ano · valores
-        observados no snapshot, sem interpolação temporal.
+        {t("Um quadro por ano · chuva e anomalia usam o mesmo ano · valores observados no snapshot, sem interpolação temporal.")}
       </p>
     </div>
   );

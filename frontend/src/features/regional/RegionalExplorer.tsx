@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import type { MapGeoJSONFeature } from "maplibre-gl";
 import type { IndicatorId } from "../../types/geography";
 import type { Crossing, RoadSegment } from "../../services/regionApi";
+import { useLanguage } from "../../i18n/LanguageContext";
 import {
   useCellFdr,
   useInfrastructure,
@@ -22,8 +23,6 @@ import {
   classify,
 } from "./lib/interpretation";
 
-const KM = (v: number) => `${Math.round(v).toLocaleString("pt-BR")} km`;
-
 /** Lê ?regiao=, ?indicador=, ?trecho= para links compartilháveis. */
 function readUrl() {
   const q = new URLSearchParams(window.location.search);
@@ -37,6 +36,9 @@ function readUrl() {
 }
 
 export default function RegionalExplorer() {
+  const { t, language, setLanguage } = useLanguage();
+  const locale = language === "en" ? "en-US" : "pt-BR";
+  const KM = (v: number) => `${Math.round(v).toLocaleString(locale)} km`;
   const initial = useMemo(readUrl, []);
   const [indicator, setIndicator] = useState<IndicatorId>(initial.indicator);
   const [selection, setSelection] = useState<Selection>(initial.selection);
@@ -110,12 +112,12 @@ export default function RegionalExplorer() {
   const tooltip = useCallback(
     (f: MapGeoJSONFeature) => {
       const p = f.properties as Record<string, unknown>;
-      if (f.layer.id === "crossing-dot") return `Travessia candidata · ${p.ref} · ${p.lengthKm} km em célula de relevo alta`;
+      if (f.layer.id === "crossing-dot") return `${t("Travessia candidata")} · ${p.ref} · ${p.lengthKm} km ${t("em célula de relevo alta")}`;
       if (f.layer.id === "road-line") return `${p.ref} · ${p.regionName} · ${p.lengthKm} km`;
-      const c = summary.status === "ready" ? CLASS_LABEL[classify(indicator, summary.data.regions[String(p.id)])] : "";
+      const c = summary.status === "ready" ? t(CLASS_LABEL[classify(indicator, summary.data.regions[String(p.id)])]) : "";
       return `${p.name}${p.level === "estado" ? "" : ` · ${c}`}`;
     },
-    [summary, indicator],
+    [summary, indicator, t],
   );
 
   const toggle = (k: keyof Layers) => setLayers((l) => ({ ...l, [k]: !l[k] }));
@@ -126,32 +128,34 @@ export default function RegionalExplorer() {
     <div className="page rg-page">
       <header className="masthead">
         <div className="masthead-row">
-          <span className="brand">ForeCast · Investigação regional</span>
-          <nav className="rg-nav mono">
-            <a href="/">Dossiê</a>
-            <a href="/grids">Grades nativas</a>
+          <span className="brand">ForeCast · {t("Investigação regional")}</span>
+          <nav className="rg-nav mono" aria-label={t("Navegação principal")}>
+            <a href="/">{t("Dossiê")}</a>
+            <a href="/grids">{t("Grades nativas")}</a>
+            <div className="rg-language" role="group" aria-label={t("Idioma")}>
+              <button type="button" aria-pressed={language === "pt"} onClick={() => setLanguage("pt")}>PT</button>
+              <button type="button" aria-pressed={language === "en"} onClick={() => setLanguage("en")}>EN</button>
+            </div>
           </nav>
         </div>
         <h1 className="rg-title">
-          Onde a chuva extrema está mudando no Sul — <em>e por onde passam as rodovias.</em>
+          {t("Onde a chuva extrema está mudando no Sul — e por onde passam as rodovias.")}
         </h1>
         <p className="lede">
-          Tendências 2001–2024 (Mann-Kendall, Theil-Sen, FDR por célula) em 21 regiões intermediárias do IBGE, sobre dados
-          NASA IMERG e GLDAS, cruzadas com BRs e rodovias estaduais e a suscetibilidade preliminar do relevo (NASADEM).
-          Evidência de mudança no perigo, não risco de desastre.
+          {t("Tendências 2001–2024 (Mann-Kendall, Theil-Sen, FDR por célula) em 21 regiões intermediárias do IBGE, sobre dados NASA IMERG e GLDAS, cruzadas com BRs e rodovias estaduais e a suscetibilidade preliminar do relevo (NASADEM). Evidência de mudança no perigo, não risco de desastre.")}
         </p>
       </header>
 
       <div className="rg-controls">
-        <div className="rg-tabs" role="group" aria-label="Indicador">
+        <div className="rg-tabs" role="group" aria-label={t("Indicador")}>
           {REGIONAL_INDICATORS.map((i) => (
-            <button key={i} aria-pressed={i === indicator} onClick={() => setIndicator(i)} title={INDICATOR_INFO[i].question}>
-              <span className="mono">{INDICATOR_INFO[i].short}</span>
-              {INDICATOR_INFO[i].label}
+            <button key={i} aria-pressed={i === indicator} onClick={() => setIndicator(i)} title={t(INDICATOR_INFO[i].question)}>
+              <span className="mono">{t(INDICATOR_INFO[i].short)}</span>
+              {t(INDICATOR_INFO[i].label)}
             </button>
           ))}
         </div>
-        <div className="rg-layers" role="group" aria-label="Camadas">
+        <div className="rg-layers" role="group" aria-label={t("Camadas")}>
           {(
             [
               ["terrain", "Relevo NASADEM"],
@@ -160,8 +164,8 @@ export default function RegionalExplorer() {
             ] as const
           ).map(([k, label]) => (
             <label key={k}>
-              <input type="checkbox" checked={layers[k]} onChange={() => toggle(k)} /> {label}
-              {layers[k] && infra[k].status === "loading" && <span className="rg-spinner" aria-label="carregando" />}
+              <input type="checkbox" checked={layers[k]} onChange={() => toggle(k)} /> {t(label)}
+              {layers[k] && infra[k].status === "loading" && <span className="rg-spinner" aria-label={t("carregando")} />}
             </label>
           ))}
         </div>
@@ -170,7 +174,7 @@ export default function RegionalExplorer() {
       <div className="rg-layout">
         <div className="rg-map-col">
           <p className="rg-q">
-            <strong>{info.question}</strong> <span className="muted mono">{info.product}</span>
+            <strong>{t(info.question)}</strong> <span className="muted mono">{t(info.product)}</span>
           </p>
           <RegionalMap
             regions={geometry.status === "ready" ? geometry.data : null}
@@ -185,12 +189,12 @@ export default function RegionalExplorer() {
             tooltip={tooltip}
           />
           <div className="rg-legend">
-            <State state={summary} what={`resultados de ${info.short}`} compact>
+            <State state={summary} what={`${t("resultados de")} ${t(info.short)}`} compact>
               {() => (
                 <ul className="rg-legend-classes">
                   {classesFor(indicator).map((c) => (
                     <li key={c}>
-                      <i style={{ background: CLASS_COLOR[c] }} aria-hidden /> {CLASS_LABEL[c]}
+                      <i style={{ background: CLASS_COLOR[c] }} aria-hidden /> {t(CLASS_LABEL[c])}
                       <span className="mono muted"> {counts?.[c] ?? 0}</span>
                     </li>
                   ))}
@@ -199,24 +203,24 @@ export default function RegionalExplorer() {
             </State>
             {layers.terrain && (
               <ul className="rg-legend-classes">
-                <li className="muted">Relevo (fração de planície baixa por célula de 0,1°):</li>
-                <li><i style={{ background: "#4a7c8c" }} /> alta ≥ 15%</li>
-                <li><i style={{ background: "#9bbcc4" }} /> média 2–15%</li>
-                <li><i style={{ background: "#e4ddcd" }} /> baixa</li>
+                <li className="muted">{t("Relevo (fração de planície baixa por célula de 0,1°):")}</li>
+                <li><i style={{ background: "#4a7c8c" }} /> {t("alta")} ≥ 15%</li>
+                <li><i style={{ background: "#9bbcc4" }} /> {t("média")} 2–15%</li>
+                <li><i style={{ background: "#e4ddcd" }} /> {t("baixa")}</li>
               </ul>
             )}
             {(layers.roads || layers.crossings) && (
               <ul className="rg-legend-classes">
                 {layers.roads && (
                   <>
-                    <li><i className="rg-line rg-line--federal" /> BR (federal)</li>
-                    <li><i className="rg-line" /> estadual</li>
+                    <li><i className="rg-line rg-line--federal" /> {t("BR (federal)")}</li>
+                    <li><i className="rg-line" /> {t("estadual")}</li>
                   </>
                 )}
-                {layers.crossings && <li><i className="rg-ring" /> travessia candidata</li>}
+                {layers.crossings && <li><i className="rg-ring" /> {t("travessia candidata")}</li>}
               </ul>
             )}
-            {geometry.status === "error" && <State state={geometry} what="limites das regiões" compact>{() => null}</State>}
+            {geometry.status === "error" && <State state={geometry} what={t("limites das regiões")} compact>{() => null}</State>}
           </div>
         </div>
 
@@ -231,7 +235,7 @@ export default function RegionalExplorer() {
               onClose={() => setSelection(null)}
             />
           ) : segmentId ? (
-            <State state={infra.roads} what="rodovias">
+              <State state={infra.roads} what={t("rodovias")}>
               {() =>
                 segment ? (
                   <SegmentPanel
@@ -243,20 +247,20 @@ export default function RegionalExplorer() {
                     onClose={() => setSelection(null)}
                   />
                 ) : (
-                  <p className="rg-state rg-state--error">Trecho {segmentId} não encontrado.</p>
+                  <p className="rg-state rg-state--error">{t("Trecho")} {segmentId} {t("não encontrado.")}</p>
                 )
               }
             </State>
           ) : (
             <section className="rg-panel">
-              <p className="eyebrow">Síntese · {info.label}</p>
-              <State state={summary} what="síntese">
+              <p className="eyebrow">{t("Síntese")} · {t(info.label)}</p>
+              <State state={summary} what={t("síntese")}>
                 {() => {
                   const sig = (counts?.worsening ?? 0) + (counts?.easing ?? 0) + (counts?.increase ?? 0) + (counts?.decrease ?? 0);
                   return (
                     <>
                       <p className="rg-big">
-                        <span className="rg-num">{sig}</span> de 21 regiões com tendência significativa
+                        <span className="rg-num">{sig}</span> {t("de")} 21 {t("regiões com tendência significativa")}
                       </p>
                       <ul className="rg-sum">
                         {classesFor(indicator).map((c) => (
@@ -266,9 +270,7 @@ export default function RegionalExplorer() {
                         ))}
                       </ul>
                       <p className="muted rg-small">
-                        Período 2001–2024. Direção atribuída pelo pipeline quando p &lt; 0,05 e o IC 95 % de Sen exclui o zero, sem
-                        correção para testes múltiplos entre regiões. Clique numa região para o diagnóstico completo, com o teste FDR
-                        por célula.
+                        {t("Período 2001–2024. Direção atribuída pelo pipeline quando p < 0,05 e o IC 95 % de Sen exclui o zero, sem correção para testes múltiplos entre regiões. Clique numa região para o diagnóstico completo, com o teste FDR por célula.")}
                       </p>
                     </>
                   );
@@ -276,18 +278,17 @@ export default function RegionalExplorer() {
               </State>
               {infraTotals && (
                 <>
-                  <h3 className="rg-h">Rodovias × relevo</h3>
+                  <h3 className="rg-h">{t("Rodovias × relevo")}</h3>
                   <p>
-                    {KM(infraTotals.lengthKm)} em {infraTotals.segments} trechos; {KM(infraTotals.lengthByClassKm.alta)} (
-                    {Math.round((infraTotals.lengthByClassKm.alta / infraTotals.lengthKm) * 100)}%) em células de suscetibilidade
-                    alta; {infraTotals.crossings} travessias candidatas.
+                    {KM(infraTotals.lengthKm)} {t("em")} {infraTotals.segments} {t("trechos")}; {KM(infraTotals.lengthByClassKm.alta)} (
+                    {Math.round((infraTotals.lengthByClassKm.alta / infraTotals.lengthKm) * 100)}%) {t("em células de suscetibilidade alta")}; {infraTotals.crossings} {t("travessias candidatas")}.
                   </p>
-                  <p className="muted rg-small">Ligue “Rodovias” e clique num trecho para ver a exposição. Diagnóstico exploratório.</p>
+                  <p className="muted rg-small">{t("Ligue “Rodovias” e clique num trecho para ver a exposição. Diagnóstico exploratório.")}</p>
                 </>
               )}
               {!infraTotals && (
                 <p className="muted rg-small">
-                  Ligue “Rodovias” ou “Relevo NASADEM” para o diagnóstico exploratório de exposição dos trechos.
+                  {t("Ligue “Rodovias” ou “Relevo NASADEM” para o diagnóstico exploratório de exposição dos trechos.")}
                 </p>
               )}
             </section>

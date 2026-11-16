@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import type { Loadable } from "../../../hooks/useRegionalTrends";
+import { useLanguage } from "../../../i18n/LanguageContext";
 
 const HINT: Record<string, string> = {
   NETWORK: "Inicie a API em backend/ (uvicorn app.main:app --port 8000).",
@@ -18,18 +19,19 @@ export function State<T>({
   children: (data: T) => ReactNode;
   compact?: boolean;
 }) {
+  const { t } = useLanguage();
   if (state.status === "ready") return <>{children(state.data)}</>;
   if (state.status === "idle") return null;
   if (state.status === "loading")
     return (
       <p className={`rg-state ${compact ? "is-compact" : ""}`} aria-busy="true">
-        <span className="rg-spinner" aria-hidden /> Carregando {what}…
+        <span className="rg-spinner" aria-hidden /> {t("Carregando")} {t(what)}…
       </p>
     );
   return (
     <div className={`rg-state rg-state--error ${compact ? "is-compact" : ""}`} role="status">
-      <strong>Não foi possível carregar {what}.</strong> {state.message}
-      {HINT[state.code] && <span className="muted"> {HINT[state.code]}</span>}
+      <strong>{t("Não foi possível carregar")} {t(what)}.</strong> {t(state.message)}
+      {HINT[state.code] && <span className="muted"> {t(HINT[state.code])}</span>}
     </div>
   );
 }

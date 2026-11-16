@@ -1,0 +1,78 @@
+.language-choice-dialog {
+  box-sizing: border-box;
+  position: fixed;
+  inset: 0;
+  margin: auto;
+  width: min(100%, 520px);
+  max-height: calc(100dvh - 48px);
+  padding: clamp(28px, 5vw, 48px);
+  color: #191814;
+  background: #f2ede2;
+  border: 1px solid #c7bfae;
+  box-shadow: 0 22px 70px rgb(0 0 0 / 32%);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.language-choice-dialog::backdrop {
+  background: rgb(16 21 19 / 74%);
+}
+
+.language-choice-brand {
+  color: #191814;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.65rem;
+}
+
+.language-choice-brand span {
+  color: #c94a0b;
+}
+
+.language-choice-dialog h1 {
+  margin: 28px 0 10px;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(1.65rem, 4vw, 2.25rem);
+  font-weight: 400;
+  line-height: 1.15;
+}
+
+.language-choice-dialog p {
+  margin: 0;
+  color: #555044;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.language-choice-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 30px;
+}
+
+.language-choice-actions button {
+  min-height: 48px;
+  flex: 1;
+  padding: 10px 16px;
+  color: #191814;
+  background: transparent;
+  border: 2px solid #c94a0b;
+  border-radius: 0;
+  font: inherit;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.language-choice-actions button:last-child {
+  color: #fffaf0;
+  background: #c94a0b;
+}
+
+.language-choice-actions button:hover {
+  outline: 3px solid rgb(201 74 11 / 18%);
+  outline-offset: 2px;
+}
+
+.language-choice-actions button:focus-visible {
+  outline: 3px solid #14556a;
+  outline-offset: 3px;
+}

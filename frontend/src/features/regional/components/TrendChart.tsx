@@ -1,5 +1,6 @@
 import { useId, useMemo, useState } from "react";
 import type { TrendResult } from "../../../types/geography";
+import { useLanguage } from "../../../i18n/LanguageContext";
 
 interface Props {
   result: TrendResult;
@@ -14,6 +15,7 @@ const M = { top: 14, right: 14, bottom: 26, left: 46 };
 
 /** Série anual com a reta de Theil-Sen do pipeline e o leque do IC 95 % da inclinação. */
 export function TrendChart({ result, unit, decimals, significant }: Props) {
+  const { t, language } = useLanguage();
   const titleId = useId();
   const [hover, setHover] = useState<number | null>(null);
   const { series, statistics: s, period } = result;
@@ -46,7 +48,7 @@ export function TrendChart({ result, unit, decimals, significant }: Props) {
   const ih = H - M.top - M.bottom;
   const x = (yr: number) => M.left + ((yr - period.start) / (period.end - period.start)) * iw;
   const y = (v: number) => M.top + ih - ((v - geo.yMin) / (geo.yMax - geo.yMin || 1)) * ih;
-  const fmt = (v: number) => v.toLocaleString("pt-BR", { maximumFractionDigits: decimals });
+  const fmt = (v: number) => v.toLocaleString(language === "en" ? "en-US" : "pt-BR", { maximumFractionDigits: decimals });
   const ticks = useMemo(() => {
     const span = geo.yMax - geo.yMin;
     const step = [0.5, 1, 2, 5, 10, 20, 25, 50, 100, 200, 500].find((t) => span / t <= 4) ?? 1000;
@@ -71,7 +73,7 @@ export function TrendChart({ result, unit, decimals, significant }: Props) {
         }}
         onPointerLeave={() => setHover(null)}
       >
-        <title id={titleId}>Série anual {period.start}–{period.end} com reta de Theil-Sen</title>
+        <title id={titleId}>{t("Série anual")} {period.start}–{period.end} {t("com reta de Theil-Sen")}</title>
         {ticks.map((v) => (
           <g key={v}>
             <line className="rg-grid" x1={M.left} x2={W - M.right} y1={y(v)} y2={y(v)} />
@@ -116,13 +118,13 @@ export function TrendChart({ result, unit, decimals, significant }: Props) {
       <figcaption className="rg-chart-cap">
         {hv ? (
           <span className="mono">
-            {hv.year}: {hv.value === null ? "sem dado" : `${fmt(hv.value)} ${unit}`}
+            {hv.year}: {hv.value === null ? t("sem dado") : `${fmt(hv.value)} ${unit}`}
           </span>
         ) : (
           <>
-            <span className="rg-key rg-key--series">valor anual</span>
-            <span className={`rg-key rg-key--sen ${significant ? "" : "is-ns"}`}>Theil-Sen{significant ? "" : " (não significativa)"}</span>
-            <span className="rg-key rg-key--fan">IC 95 % da inclinação</span>
+            <span className="rg-key rg-key--series">{t("valor anual")}</span>
+            <span className={`rg-key rg-key--sen ${significant ? "" : "is-ns"}`}>Theil-Sen{significant ? "" : ` (${t("não significativa")})`}</span>
+            <span className="rg-key rg-key--fan">{t("IC 95 % da inclinação")}</span>
           </>
         )}
       </figcaption>

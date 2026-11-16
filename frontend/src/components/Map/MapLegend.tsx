@@ -1,5 +1,6 @@
 import type { IndicatorId, LayerId } from "../../types/geography";
 import { indicators } from "./MapLayers";
+import { useLanguage } from "../../i18n/LanguageContext";
 export function MapLegend({
   layer,
   indicator,
@@ -7,13 +8,15 @@ export function MapLegend({
   layer: LayerId;
   indicator: IndicatorId;
 }) {
+  const { t } = useLanguage();
   const item = indicators[indicator];
+  const unit = t(item.unit);
   return (
-    <section className="legend" aria-label="Legenda de magnitude e evidência">
+    <section className="legend" aria-label={t("Legenda de magnitude e evidência")}>
       <div className="eyebrow">
         {layer === "neutral"
-          ? "LIMITES GEOGRÁFICOS"
-          : `MAGNITUDE / ${item.unit} por década`}
+          ? t("LIMITES GEOGRÁFICOS")
+          : t("MAGNITUDE / {unit} por década").replace("{unit}", unit)}
       </div>
       {layer === "trend" ? (
         <>
@@ -24,31 +27,30 @@ export function MapLegend({
             <span>≥ +{item.extent}</span>
           </div>
           <p className="legend-explanation">
-            Cor = inclinação de Sen. Zero não significa inconclusivo.
+            {t("Cor = inclinação de Sen. Zero não significa inconclusivo.")}
           </p>
           <div className="evidence-key">
             <span>
               <i className="solid-evidence" />
-              Evidência significativa*
+              {t("Evidência significativa*")}
             </span>
             <span>
               <i className="dashed-evidence" />
-              Inconclusivo / exploratório
+              {t("Inconclusivo / exploratório")}
             </span>
           </div>
           <p className="legend-explanation">
-            * status válido, p ≤ 0,05 e IC95% exclui zero. Traço não representa
-            magnitude.
+            {t("* status válido, p ≤ 0,05 e IC95% exclui zero. Traço não representa magnitude.")}
           </p>
         </>
       ) : (
-        <p>Limites estaduais, sem indicador climático.</p>
+        <p>{t("Limites estaduais, sem indicador climático.")}</p>
       )}
       <div className="no-data">
         <i />
         {layer === "neutral"
-          ? "Território sem indicador"
-          : "Cinza escuro: sem dados / insuficiente"}
+          ? t("Território sem indicador")
+          : t("Cinza escuro: sem dados / insuficiente")}
       </div>
     </section>
   );
