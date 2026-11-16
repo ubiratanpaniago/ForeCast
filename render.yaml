@@ -19,7 +19,7 @@ services:
       # O Render pede o valor ao criar o serviço.
       - key: FORECAST_CORS_ORIGINS
         sync: false
-      # Libera os links de pré-visualização por branch do Cloudflare Pages.
-      # Troque "forecast" pelo nome do projeto no Cloudflare, se for diferente.
+      # Libera o site no Cloudflare Pages (https://forecast-4ub.pages.dev) e os
+      # links de pré-visualização por branch (https://<branch>.forecast-4ub.pages.dev).
       - key: FORECAST_CORS_ORIGIN_REGEX
-        value: https://[a-z0-9-]+\.forecast\.pages\.dev
+        value: https://([a-z0-9-]+\.)?forecast-4ub\.pages\.dev

@@ -33,7 +33,7 @@ O que o `render.yaml` já configura: pasta `backend`, instalação só de `requi
 
    | Campo | Valor |
    | --- | --- |
-   | Project name | `forecast` (se usar outro nome, ajuste `FORECAST_CORS_ORIGIN_REGEX` no Render) |
+   | Project name | `forecast` (o Cloudflare deu `forecast-4ub`; se mudar, ajuste `FORECAST_CORS_ORIGIN_REGEX` no `render.yaml`) |
    | Production branch | `main` |
    | Framework preset | `None` |
    | Root directory | `frontend` |
@@ -66,7 +66,7 @@ https://forecast.pages.dev
 
 Para várias origens, separe por vírgula. Salve; o Render reinicia a API sozinho.
 
-A variável `FORECAST_CORS_ORIGIN_REGEX` (já no `render.yaml`) libera também os links de pré-visualização por branch do Cloudflare (`https://<branch>.forecast.pages.dev`). Assim, quem estiver trabalhando numa branch (a tradução, por exemplo) vê a versão dela funcionando online antes do merge.
+Na prática, a variável `FORECAST_CORS_ORIGIN_REGEX` do `render.yaml` já libera o site de produção (`https://forecast-4ub.pages.dev`) e os links de pré-visualização por branch (`https://<branch>.forecast-4ub.pages.dev`), então esta etapa só é necessária para outros endereços. Assim, quem estiver trabalhando numa branch (a tradução, por exemplo) vê a versão dela funcionando online antes do merge.
 
 ## 4. UptimeRobot (manter a API acordada)
 
