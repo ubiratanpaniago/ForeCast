@@ -100,10 +100,14 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   );
 }
 
+// Fora do LanguageProvider (testes de componentes isolados, por exemplo) o texto
+// fica no português original. O app real sempre é envolvido pelo provider em main.tsx.
+const PORTUGUESE_FALLBACK: LanguageContextValue = {
+  language: "pt",
+  setLanguage: () => {},
+  t: (portugueseText) => portugueseText,
+};
+
 export function useLanguage(): LanguageContextValue {
-  const context = useContext(LanguageContext);
-  if (!context) {
-    throw new Error("useLanguage deve ser usado dentro de LanguageProvider.");
-  }
-  return context;
+  return useContext(LanguageContext) ?? PORTUGUESE_FALLBACK;
 }
